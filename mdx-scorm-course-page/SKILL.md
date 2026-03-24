@@ -29,6 +29,9 @@ Before generating final page content, first determine where the result should go
 ## Non-negotiable rules
 
 - Preserve the author's wording as much as possible. Reorganize; do not freely rewrite.
+- Do not arbitrarily compress, abridge, summarize, or omit source content. If the source includes reading passages, sources, vocabulary notes, term explanations, answer keys, translations, or other teaching material, keep them complete unless the user explicitly asks for a shortened version.
+- When converting vocabulary or glossary material, keep the full original explanatory content. Do not replace full source definitions with shorter paraphrases just because the popup or page would be shorter.
+- When a source page contains `Source`, `Vocabulary Focus`, `Cultural/Professional Terms`, `Answer`, `参考译文`, `Skill Summary`, or similar labeled sections, assume they are required content by default and carry them over unless the user explicitly asks to remove or shorten them.
 - Use canonical ASCII directive syntax in final output even if the source material used Chinese aliases or full-width punctuation.
 - Do not emit `import` statements for authored lesson pages.
 - Do not emit general interactive JSX such as `<Choice />`, `<FillBlank />`, or other custom components for user-authored content.
@@ -105,6 +108,8 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - no imports
    - no general JSX interaction components
    - no fabricated answers
+   - no silent compression or omission of labeled source sections
+   - no shortened vocabulary / glossary definitions unless explicitly requested
    - directive fences are balanced
    - if interactions exist, numbering mode is set deliberately
 
