@@ -16,6 +16,27 @@ Use it when generating authored lesson pages. Prefer the canonical ASCII syntax 
 - In `build:content`, general JSX components such as `<Choice />`, `<ShowAfterSubmit />`, and `<AiExercise />` do not execute. Prefer directive blocks for authored content.
 - Local media should be authored as package-relative assets that resolve through `public/media`, not by hard-coding runtime package identity.
 
+## Common inline formatting reminders
+
+Use standard Markdown for normal inline emphasis:
+
+- `**bold**`
+- `*italic*`
+- `~~strikethrough~~`
+- `` `code` ``
+
+When the source clearly needs underline, superscript, or subscript, use inline HTML because standard Markdown does not define them:
+
+- underline -> `<u>key term</u>`
+- superscript -> `10<sup>2</sup>`
+- subscript -> `H<sub>2</sub>O`
+
+Notes:
+
+- These forms are already used in the repo's markdown demos and are compatible with the current renderer.
+- If the goal is not semantic superscript/subscript but simply visual underline emphasis inside a themed sentence, `:styleText[...]` with `text-decoration=underline` can be a better fit than raw HTML.
+- Do not invent pseudo-Markdown such as `^sup^` or `++underline++` unless the source explicitly uses a plugin syntax that this repo actually supports.
+
 ## Frontmatter baseline
 
 Minimal safe page header:

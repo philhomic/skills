@@ -34,6 +34,7 @@ Before generating final page content, first determine where the result should go
 - When a source page contains `Source`, `Vocabulary Focus`, `Cultural/Professional Terms`, `Answer`, `参考译文`, `Skill Summary`, or similar labeled sections, assume they are required content by default and carry them over unless the user explicitly asks to remove or shorten them.
 - Use canonical ASCII directive syntax in final output even if the source material used Chinese aliases or full-width punctuation.
 - Respect the repo's strict frontmatter parser. Use supported single-line `key: value` fields, and only use nested `ai:` / `ai.prompt:` structures that the current parser accepts.
+- For basic inline formatting, prefer normal Markdown first. When the source clearly needs underline, superscript, or subscript, use repo-compatible inline HTML such as `<u>...</u>`, `<sup>...</sup>`, and `<sub>...</sub>` instead of inventing pseudo-Markdown syntax.
 - Do not emit `import` statements for authored lesson pages.
 - Do not emit general interactive JSX such as `<Choice />`, `<FillBlank />`, or other custom components for user-authored content.
 - In content-driven or export-sensitive authoring, prefer directive forms even for newer helper blocks such as `showAfterSubmit`, `aiexercise`, `exportcontent`, and `chatwithai`.
