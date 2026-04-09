@@ -1,6 +1,6 @@
 # mdx-scorm syntax inventory
 
-This file is a source-audited syntax reference for `D:\MyProjects\welearn-ninja\mdx-scorm`.
+This file is a source-audited syntax reference for `D:\Projects\welearn-ninja\mdx-scorm`.
 
 Use it when generating authored lesson pages. Prefer the canonical ASCII syntax shown here, even though the runtime also supports aliases and normalization.
 
@@ -12,6 +12,9 @@ Use it when generating authored lesson pages. Prefer the canonical ASCII syntax 
 - Do not nest one interactive question block inside another interactive question block.
 - The runtime normalizes Chinese aliases, full-width punctuation, and some mojibake prefixes, but generated output should stay canonical.
 - For user-authored content, avoid general interactive JSX. Use directive blocks instead.
+- Frontmatter parsing is strict and repo-specific. Do not treat it as free-form YAML.
+- In `build:content`, general JSX components such as `<Choice />`, `<ShowAfterSubmit />`, and `<AiExercise />` do not execute. Prefer directive blocks for authored content.
+- Local media should be authored as package-relative assets that resolve through `public/media`, not by hard-coding runtime package identity.
 
 ## Frontmatter baseline
 
@@ -27,10 +30,51 @@ numbering: type
 
 Use `numbering: none` when the page has no interactions.
 
+Current parser and page-control notes:
+
+- Prefer single-line `key: value` fields.
+- `feedback` accepts `submit`, `submit_<n>`, and `instant`.
+- `numberingStart` is a positive integer and only matters when numbering is enabled.
+- Common optional page-level fields include `weights`, `scoreCardShowWeights`, `noSubmit`, `scormDebug`, `autoShowScoreCardOnSubmit`, `scoreCardGrouping`, `cardMode`, `browseMode`, `isShowDictionary`, and `ai`.
+- Only `ai.prompt` supports list syntax; avoid arbitrary arrays, multiline strings, and deep nested objects.
+
 Reference files:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\frontmatter写法规范.md`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\scorms.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\frontmatter写法规范.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+
+## Media authoring
+
+Use package-relative authored paths and let the runtime normalize them through `/media/...`.
+
+Examples:
+
+```md
+![Local image](sample-image.png)
+
+[Local audio](u01/sample-audio.mp3)
+
+[Local video](u01/sample-video.mp4)
+
+<audio controls src="sample-audio.mp3"></audio>
+
+<video controls src="u01/sample-video.mp4"></video>
+```
+
+Notes:
+
+- Place local assets under `public/media/`.
+- External URLs (`https://...`) are left untouched.
+- Direct HTML media tags and markdown image/link syntax are both supported.
+- Do not encode `offline_media_id` or package folder assumptions into the content path itself.
+
+## SCORM participation rule
+
+Most low-level interactions default to tracked mode.
+
+- `scorm=true` is the normal default.
+- `scorm=false` keeps the task usable but removes it from numbering, score cards, submit gating, `cmi.interactions.*` writes, and tracked restore.
+- `ShowAfterSubmit` forces all nested interactive descendants into practice mode even if a child block was authored with `scorm=true`.
 
 ## Interactive blocks
 
@@ -67,6 +111,7 @@ Sections:
 Key attributes:
 
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -80,8 +125,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
 
 ### fillblank
 
@@ -112,6 +157,7 @@ Sections:
 Key attributes:
 
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -130,8 +176,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkFillBlankBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkFillBlankBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
 
 ### choicecloze
 
@@ -162,6 +208,7 @@ Sections:
 Key attributes:
 
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -181,15 +228,15 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceClozeBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceClozeBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
 
 ### matching
 
 Canonical block:
 
 ```md
-:::matching{weight=2}
+:::matching
 [left]
 Cat
 Eagle
@@ -217,6 +264,7 @@ Sections commonly used:
 Key attributes:
 
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -231,8 +279,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkMatchingBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkMatchingBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
 
 ### sorting
 
@@ -266,6 +314,7 @@ Sections:
 
 Key attributes:
 
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -280,8 +329,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkSortingBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\components\SortingBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkSortingBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\SortingBlock.tsx`
 
 ### translate
 
@@ -290,16 +339,18 @@ Canonical block:
 ```md
 :::translate{type=sentence}
 [prompt]
-Translate into Chinese:
-The quick brown fox jumps over the lazy dog.
+Translate into English:
+敏捷的棕色狐狸跳过了那只懒狗。
 
 [answer]
-敏捷的棕色狐狸跳过了那只懒狗。
+The quick brown fox jumps over the lazy dog.
 
 [explanation]
 Optional explanation.
 :::
 ```
+
+Supports only Chinese-to-English Translation.
 
 Supported aliases in repo:
 
@@ -316,6 +367,7 @@ Key attributes:
 - `type=sentence|passage`
 - `rows=<positive integer>`
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -327,8 +379,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkTranslateBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\components\TranslateBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkTranslateBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\TranslateBlock.tsx`
 
 ### writing
 
@@ -358,6 +410,7 @@ Key attributes:
 - `agent`
 - `rows=<positive integer>`
 - `open`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -369,8 +422,65 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkWritingBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\components\WritingBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkWritingBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\WritingBlock.tsx`
+
+### discussion / debate
+
+Canonical block:
+
+```md
+:::discussion{rows=4}
+[topic]
+Which matters more in language learning, input or output?
+
+[guide]
+Post your own view first. Then try quoting and replying to a classmate.
+:::
+```
+
+Debate variant:
+
+```md
+:::debate{rows=4}
+[topic]
+Universities should make AI writing tools mandatory in every writing class.
+
+[guide]
+Post your stance and explain your reasons clearly.
+:::
+```
+
+Supported aliases in repo:
+
+- `discussion`, `讨论`, `讨论题`
+- `debate`, `辩论`, `辩论题`
+
+Sections:
+
+- `[topic]`
+- `[guide]`
+- optional empty-state or helper sections may be added in JSX, but authored directive usage should stay simple
+
+Key attributes:
+
+- `rows=<positive integer>`
+- `labels=none`
+- `supportLabel`
+- `opposeLabel`
+- `isshared=true|false`
+- `scorm=true|false`
+
+Notes:
+
+- This is a completion-oriented threaded class interaction, not a normal essay box.
+- Use it only when the lesson truly expects class discussion or debate.
+- Joined-class state affects completion at runtime; do not use it as a generic replacement for `writing`.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\pages\01_showpowers\11.8_Discussion_demos.mdx`
 
 ### recorder
 
@@ -406,6 +516,7 @@ Key attributes:
 - `detailMaxWaitMs`
 - `preferJsonDetail=true|false`
 - `showXmlFallback=true|false`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
@@ -414,11 +525,12 @@ Notes:
 
 - Use only when the lesson really needs speaking/recording.
 - `category="speak"` can omit `script`, but do not rely on that unless the prompt text is clearly the spoken content.
+- `recordOnly=true` skips scoring and detail fetching but still counts the task as completed.
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkRecorderBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkRecorderBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
 
 ### imageupload
 
@@ -441,13 +553,19 @@ Prompt source:
 Key attributes:
 
 - `maxAttempts`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
 
+Notes:
+
+- Completion-only upload task.
+- After a successful upload, the latest preview is shown on the page.
+
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkImageUploadBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkImageUploadBlock.ts`
 
 ### videoupload
 
@@ -470,13 +588,19 @@ Prompt source:
 Key attributes:
 
 - `maxAttempts`
+- `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
 
+Notes:
+
+- Completion-only upload task.
+- After a successful upload, the latest preview is shown on the page.
+
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkVideoUploadBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkVideoUploadBlock.ts`
 
 ## Display blocks and helpers
 
@@ -516,7 +640,7 @@ Notes:
 
 - Numeric values are treated as `px` for supported properties.
 - CSS functions like `var(...)`, `calc(...)`, `clamp(...)`, `min(...)`, and `max(...)` are supported.
-- Prefer theme tokens from `D:\MyProjects\welearn-ninja\mdx-scorm\src\global.css` and `D:\MyProjects\welearn-ninja\mdx-scorm\src\themes\*.css` when styling authored content.
+- Prefer theme tokens from `D:\Projects\welearn-ninja\mdx-scorm\src\global.css` and `D:\Projects\welearn-ninja\mdx-scorm\src\themes\*.css` when styling authored content.
 - Prefer semantic tokens such as `var(--card-bg)`, `var(--card-border)`, `var(--card-shadow)`, `var(--text-strong)`, `var(--text-muted)`, `var(--quote-bg)`, `var(--quote-text)`, `var(--accent-1)`, and `var(--surface-1)` over hard-coded colors.
 - `styleText` and `styleLine` use the same style whitelist and the same variable/expression support.
 - Authoring preference order: semantic component token -> shared text/surface/accent token -> literal CSS value.
@@ -540,8 +664,8 @@ Suggested authoring mappings:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\components\styleProps.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\styleProps.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleBlock.ts`
 
 ### styleText
 
@@ -563,8 +687,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 
 ### styleLine
 
@@ -598,8 +722,8 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\utils\mdxUtils.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\utils\mdxUtils.ts`
 
 ### play
 
@@ -620,7 +744,7 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\markdown\remarkInlineAudio.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\markdown\remarkInlineAudio.ts`
 
 ### collapse
 
@@ -652,18 +776,12 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkCollapseBlock.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkCollapseBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 
 ### pop
 
-Inline canonical form:
-
-```md
-:pop[Quick tip]{markdown="Use directive blocks for dynamic-mode content."}
-```
-
-Definition/reference form:
+Canonical form:
 
 ```md
 :pop[Term label]{ref=term-1}
@@ -675,14 +793,6 @@ Definition/reference form:
 :::
 ```
 
-Legacy block form:
-
-```md
-:::pop[Open popup]{background-color=#fff6e5}
-Popup body content.
-:::
-```
-
 Notes:
 
 - Style attributes on inline `pop` apply to the trigger.
@@ -690,7 +800,6 @@ Notes:
 - Duplicate `def` ids are allowed but later definitions win.
 - Missing `ref` falls back to inline `markdown` or `source`.
 - Do not nest `pop` inside another `pop` label.
-- For rich popup bodies, prefer `ref/def` plus an inner `styleBlock` that uses theme tokens such as `var(--card-bg)` and `var(--card-border)`.
 - In authored lesson pages, `pop` is best treated as an inline annotation tool: use it for footnotes, endnotes, vocabulary notes, and term explanations that belong to the reading flow.
 - Prefer `ref/def` when the annotation content comes from source notes or glossary material, so the inline trigger and note body stay separate.
 - Keep `def` blocks outside interactive question blocks; use inline `ref` markers inside the prose where the explained term actually appears.
@@ -744,8 +853,8 @@ keep it as a normal glossary list; do not force an inline `pop`.
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkPop.ts`
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\markdown\remarkDisplayDirectives.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkPop.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\markdown\remarkDisplayDirectives.ts`
 
 ### sticky
 
@@ -780,7 +889,38 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkStickyBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStickyBlock.ts`
+
+### wide
+
+Canonical block:
+
+```md
+:::wide{width=1080}
+| Col 1 | Col 2 | Col 3 | Col 4 |
+| --- | --- | --- | --- |
+| A | B | C | D |
+:::
+```
+
+Supported aliases in repo:
+
+- `wide`, `widecontent`, `宽内容`
+
+Key attributes:
+
+- `width`
+- `class`
+- `className`
+
+Notes:
+
+- Display-only container for locally scrollable wide tables, code blocks, or diagrams.
+- Use it only when normal page width would make the content unreadable.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 
 ### splitpane
 
@@ -821,7 +961,7 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkSplitPaneBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkSplitPaneBlock.ts`
 
 Authoring comparison:
 
@@ -864,7 +1004,7 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkColumnsBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkColumnsBlock.ts`
 
 ### carousel
 
@@ -907,7 +1047,7 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkCarouselBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkCarouselBlock.ts`
 
 ### iframe
 
@@ -946,10 +1086,156 @@ Notes:
 
 Source of truth:
 
-- `D:\MyProjects\welearn-ninja\mdx-scorm\src\mdx\remarkIframeBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkIframeBlock.ts`
+
+### showaftersubmit
+
+Canonical block:
+
+```md
+:::showAfterSubmit
+This content appears only after the page has really entered submitted state.
+:::
+```
+
+Supported aliases in repo:
+
+- `showAfterSubmit`, `提交后显示`, `提交后内容`
+
+Notes:
+
+- Visibility wrapper only; no extra attrs in the current implementation.
+- The block appears after formal submit, including instant-mode auto-submit pages.
+- `RESET` hides it again.
+- Nested interactive descendants are forced into practice mode.
+- Good for post-submit explanations, extension reading, or optional follow-up practice.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+
+### aiexercise
+
+Canonical block:
+
+```md
+:::aiexercise{trigger="manual" source="page" mode="practice" appId="demo-app-id"}
+[types]
+choice
+translate
+
+[count]
+2
+
+[intro]
+Generate a short extra practice round.
+
+[extraContext]
+Focus on reading comprehension and bilingual transfer.
+:::
+```
+
+Supported aliases in repo:
+
+- `aiexercise`, `AI练习`, `智能练习`
+
+Sections:
+
+- `[types]`
+- `[count]`
+- `[intro]`
+- `[extraContext]`
+
+Key attributes:
+
+- required: `types`, `count`
+- optional: `appId`, `mode`, `trigger`, `source`, `extraContext`, `contentLanguage`, `questionLanguage`, `answerLanguage`
+
+Notes:
+
+- Runtime AI practice generator, not a static authored question block.
+- `mode="practice"` generates `scorm=false` items; `mode="formal"` generates tracked items.
+- If wrapped by `showAfterSubmit`, generated items still behave as practice-only.
+- Use only when the user explicitly wants runtime AI-generated follow-up tasks.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+
+### exportcontent
+
+Canonical block:
+
+```md
+:::exportcontent{target="/01_showpowers/23_exportcontent_demos" scope="page" locale="zh" showControls=false}
+:::
+```
+
+Supported aliases in repo:
+
+- `exportcontent`, `导出内容`, `内容导出`
+
+Key attributes:
+
+- `target`
+- `scope=page|folder|course`
+- `locale=zh|en`
+- `profile=student|teacher`
+- `format=markdown|text`
+- `showControls=true|false`
+
+Notes:
+
+- Export tool block, not a learner task.
+- Layout containers are flattened in export; teacher export usually appends answers after prompts.
+- Use only when the user explicitly wants on-page export tooling.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkExportContentBlock.ts`
+
+### chatwithai
+
+Canonical block:
+
+```md
+:::chatwithai{target="/01_showpowers/28_chatwithai_demos" scope="page" showControls=false maxTurns=4}
+:::
+```
+
+Supported aliases in repo:
+
+- `chatwithai`, `AI对话`
+
+Key attributes:
+
+- `target`
+- `targetPath`
+- `scope=page|folder`
+- `showControls=true|false`
+- `maxTurns`
+- `appId`
+- `title`
+- `placeholder`
+- `outOfScopeMessage`
+
+Notes:
+
+- Page/folder-scoped AI chat helper, not a scored interaction.
+- Use only when the user explicitly wants a contextual AI chat panel in the lesson.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChatWithAiBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\chatWithAi\types.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\pages\01_showpowers\28_ChatWithAI_demos.mdx`
 
 ## Generation advice
 
 - For regular handouts, plain markdown + `choice` / `fillblank` / `matching` / `sorting` / `translate` / `writing` is usually enough.
-- Do not introduce `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, or `iframe` unless the source truly asks for them.
+- Use `scorm=false` only for clearly optional practice.
+- Use `showAfterSubmit` when follow-up content should unlock only after the formal tracked task is finished.
+- Do not introduce `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `aiexercise`, `exportcontent`, or `chatwithai` unless the source or user explicitly asks for them.
 - If a display block only adds decoration and not clarity, skip it.
+

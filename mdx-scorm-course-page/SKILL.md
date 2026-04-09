@@ -1,6 +1,6 @@
 ---
 name: mdx-scorm-course-page
-description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::matching`, `:::sorting`, `:::translate`, `:::writing`, `:::recorder`, `:::imageupload`, `:::videoupload`, `styleBlock`, `collapse`, `pop`, `sticky`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
+description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::exportcontent`, `:::chatwithai`, `styleBlock`, `collapse`, `pop`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
 ---
 
 # mdx-scorm course page authoring
@@ -33,12 +33,16 @@ Before generating final page content, first determine where the result should go
 - When converting vocabulary or glossary material, keep the full original explanatory content. Do not replace full source definitions with shorter paraphrases just because the popup or page would be shorter.
 - When a source page contains `Source`, `Vocabulary Focus`, `Cultural/Professional Terms`, `Answer`, `参考译文`, `Skill Summary`, or similar labeled sections, assume they are required content by default and carry them over unless the user explicitly asks to remove or shorten them.
 - Use canonical ASCII directive syntax in final output even if the source material used Chinese aliases or full-width punctuation.
+- Respect the repo's strict frontmatter parser. Use supported single-line `key: value` fields, and only use nested `ai:` / `ai.prompt:` structures that the current parser accepts.
 - Do not emit `import` statements for authored lesson pages.
 - Do not emit general interactive JSX such as `<Choice />`, `<FillBlank />`, or other custom components for user-authored content.
+- In content-driven or export-sensitive authoring, prefer directive forms even for newer helper blocks such as `showAfterSubmit`, `aiexercise`, `exportcontent`, and `chatwithai`.
 - Do not invent correct answers, explanations, weights, or scoring settings that are not supported by the source.
 - If an objective exercise is missing key data, keep it unresolved and add an HTML comment like `<!-- TODO: missing answer in source -->`.
 - Default to one page. Only split into multiple pages if the user explicitly asks.
 - Do not assume a fixed taxonomy of pages, a fixed folder hierarchy, or a fixed section split across projects.
+- When the user is authoring local media, keep content paths package-relative and consistent with `public/media` authoring rules. Do not hard-code package ids or offline media identities into page content.
+- When the task touches a whole unit inside a real `mdx-scorm` repo, align page titles, folder names, and optional catalog overrides with the repo's actual `catalogConfig.md` conventions instead of inventing a parallel structure.
 - When a reference unit is provided, treat it as a set of transformation examples, not as a source of facts for the target unit.
 
 ## When `.docx` is the input
@@ -51,6 +55,13 @@ Read these before authoring:
 
 - `references/syntax-inventory.md` - source-audited directive and component syntax
 - `assets/course-page-template.mdx` - default page scaffold
+
+If the task touches specific repo features, also inspect the relevant upstream docs from the target `mdx-scorm` repo before writing:
+
+- `frontmatter写法规范.md` for strict page header fields
+- `User Manual.md` for author-facing block behavior and build-mode constraints
+- `catalogConfig扩展语法规范.md` when unit generation or catalog metadata is involved
+- `Recorder Feedback Detail Memo.md` when recorder detail behavior or score display matters
 
 If you are using only a small subset of blocks, read the relevant sections from the syntax inventory instead of loading unrelated material.
 
@@ -96,8 +107,11 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - ordering/steps -> `:::sorting`
    - translation -> `:::translate`
    - short writing/essay -> `:::writing`
+   - class discussion or debate -> `:::discussion` / `:::debate`
    - speaking/recording -> `:::recorder`
    - image/video submission -> upload blocks
+   - post-submit explanation or follow-up practice -> `:::showAfterSubmit`
+   - runtime AI-generated extra practice -> `:::aiexercise` only when the user or reference explicitly calls for it
 5. Build the page:
    - start from `assets/course-page-template.mdx`
    - set frontmatter defaults intelligently
@@ -229,10 +243,35 @@ Do not force the target into the reference shape just for symmetry.
 Use the simplest valid frontmatter that matches the page.
 
 - Always include `title`.
-- Use `feedback: submit` unless the user already asked for a different behavior.
+- Use `feedback: submit` unless the user already asked for a different behavior. Remember this maps to the repo's current `submit_1` default behavior.
 - If the page includes interactive blocks, default to `numbering: type`.
 - If the page is display-only, default to `numbering: none`.
-- Only add fields like `browseMode`, `scormDebug`, `scoreCardShowWeights`, `showai`, or `ai:` when the user explicitly needs them.
+- Only add optional fields like `numberingStart`, `weights`, `scoreCardGrouping`, `browseMode`, `scormDebug`, `scoreCardShowWeights`, `cardMode`, `isShowDictionary`, `showai`, or `ai:` when the user explicitly needs them.
+
+### Frontmatter parser rule
+
+Treat frontmatter as a strict, repo-specific data format rather than generic YAML.
+
+- Prefer single-line `key: value` entries.
+- Do not author arbitrary arrays, multiline strings, or deep nested objects.
+- Only `ai.prompt` should use list syntax when multiple prompts are required.
+- If the page needs advanced page controls, mirror the shapes documented in the current repo instead of improvising YAML patterns.
+
+### Tracked vs practice authoring rule
+
+Most interactions should stay tracked by default.
+
+- Use `scorm=false` only for optional practice that should not affect numbering, score cards, submit gating, or LMS persistence.
+- Use `:::showAfterSubmit` for post-submit explanations or extension practice that should unlock only after formal submission.
+- Remember that any interactive descendants inside `showAfterSubmit` are forced into practice mode even if the child block was authored with `scorm=true`.
+
+### Local media authoring rule
+
+When the page uses local images, audio, or video:
+
+- Author them as package-relative media references that resolve through `public/media`.
+- Prefer normal markdown or supported HTML media tags over custom imports.
+- Do not encode runtime package identity or `offline_media_id` assumptions into the content path itself.
 
 ## Authoring heuristics
 
@@ -243,11 +282,16 @@ Use standard headings, paragraphs, lists, blockquotes, tables, images, audio, an
 ### Prefer the simplest supported directive
 
 - Use `styleBlock` only when local styling or boxed emphasis is useful.
+- Use `play` for short inline audio cues or pronunciation prompts.
 - Use `collapse` for optional extra explanation.
 - Use `pop` primarily for inline annotation derived from the source, especially footnotes, endnotes, vocabulary notes, and term explanations.
+- Use `wide` only when a table, code block, or other wide content needs its own horizontal scrolling area.
 - Use `splitpane` when learners need to keep a long reference text visible while answering questions or completing a task.
 - Use `sticky` when learners need to repeatedly glance at a short reference block such as a word bank, checklist, or compact note.
 - Use `splitpane`, `columns`, `carousel`, and `iframe` only when the source clearly calls for layout or embedded content.
+- Use `showAfterSubmit` only when the page really has a formal first-pass task and a meaningful post-submit follow-up.
+- Use `discussion` / `debate` only when the source truly expects threaded class interaction, not as a substitute for ordinary writing prompts.
+- Use `aiexercise`, `exportcontent`, and `chatwithai` only when the user explicitly wants runtime AI help, export tooling, or chat assistance on the page.
 
 ### Long expository page variation rule
 
@@ -742,6 +786,8 @@ For unit work, also mention:
 
 - Canonical syntax wins over aliases in generated output.
 - `mdx-scorm` dynamic/user-authored content should stay directive-based.
+- Keep frontmatter within the repo's strict supported shape; do not treat it as free-form YAML.
+- Use `scorm=false` sparingly for optional practice, and use `showAfterSubmit` when post-submit content should stay outside formal tracking.
 - Be faithful to the source.
 - When unsure, choose simpler syntax over clever syntax.
 - Learn transformation patterns from the reference unit; do not copy its facts into the target unit.
