@@ -1,6 +1,6 @@
 ---
 name: mdx-scorm-course-page
-description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::exportcontent`, `:::chatwithai`, `styleBlock`, `collapse`, `pop`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
+description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::media`, `:::exportcontent`, `styleBlock`, `collapse`, `pop`, `askAI`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
 ---
 
 # mdx-scorm course page authoring
@@ -37,7 +37,8 @@ Before generating final page content, first determine where the result should go
 - For basic inline formatting, prefer normal Markdown first. When the source clearly needs underline, superscript, or subscript, use repo-compatible inline HTML such as `<u>...</u>`, `<sup>...</sup>`, and `<sub>...</sub>` instead of inventing pseudo-Markdown syntax.
 - Do not emit `import` statements for authored lesson pages.
 - Do not emit general interactive JSX such as `<Choice />`, `<FillBlank />`, or other custom components for user-authored content.
-- In content-driven or export-sensitive authoring, prefer directive forms even for newer helper blocks such as `showAfterSubmit`, `aiexercise`, `exportcontent`, and `chatwithai`.
+- In content-driven or export-sensitive authoring, prefer directive forms even for newer helper blocks such as `showAfterSubmit`, `aiexercise`, `media`, `exportcontent`, and `askAI`.
+- Do not author retired `chatwithai` content. Use `aiCompanion` for the shell/menu entry, `askAI` for an inline AI trigger, or `aiexercise` for generated practice.
 - Do not invent correct answers, explanations, weights, or scoring settings that are not supported by the source.
 - If an objective exercise is missing key data, keep it unresolved and add an HTML comment like `<!-- TODO: missing answer in source -->`.
 - Default to one page. Only split into multiple pages if the user explicitly asks.
@@ -113,6 +114,8 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - image/video submission -> upload blocks
    - post-submit explanation or follow-up practice -> `:::showAfterSubmit`
    - runtime AI-generated extra practice -> `:::aiexercise` only when the user or reference explicitly calls for it
+   - full audio/video player with transcript behavior -> `:::media`
+   - inline AI companion launch -> `:askAI[...]` only when the course design asks for it
 5. Build the page:
    - start from `assets/course-page-template.mdx`
    - set frontmatter defaults intelligently
@@ -292,7 +295,7 @@ Use standard headings, paragraphs, lists, blockquotes, tables, images, audio, an
 - Use `splitpane`, `columns`, `carousel`, and `iframe` only when the source clearly calls for layout or embedded content.
 - Use `showAfterSubmit` only when the page really has a formal first-pass task and a meaningful post-submit follow-up.
 - Use `discussion` / `debate` only when the source truly expects threaded class interaction, not as a substitute for ordinary writing prompts.
-- Use `aiexercise`, `exportcontent`, and `chatwithai` only when the user explicitly wants runtime AI help, export tooling, or chat assistance on the page.
+- Use `aiexercise`, `media`, `exportcontent`, and `askAI` only when the user explicitly wants generated practice, transcript-aware media, export tooling, or inline AI assistance on the page.
 
 ### Long expository page variation rule
 

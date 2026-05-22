@@ -97,6 +97,30 @@ Most low-level interactions default to tracked mode.
 - `scorm=false` keeps the task usable but removes it from numbering, score cards, submit gating, `cmi.interactions.*` writes, and tracked restore.
 - `ShowAfterSubmit` forces all nested interactive descendants into practice mode even if a child block was authored with `scorm=true`.
 
+## Common interaction attributes
+
+Most formal interaction directives support the following current attributes:
+
+- `id`: stable interaction id, useful for manual marking and long-term restore stability.
+- `weight`: base weight for scored interaction types.
+- `weightDistribution=shared|average`: child-slot weight behavior.
+- `scorm=true|false`: `false` makes the interaction practice-only.
+- `open`: completion-only mode for supported items.
+- `isshared=true|false`: legacy SCORM shared marker.
+
+Current subjective sharing is controlled by `share`, not legacy `isshared`:
+
+- `share=true`: opens the current shared-response UI and sets the SCORM shared marker.
+- `share=true shareComments=true`: also enables peer comments in the shared-response panel.
+- `shareComments=true` without `share=true` has no UI effect.
+
+Manual marking is explicit per formal interaction:
+
+- `useManualMarking=true`: scored teacher marking for `writing`, `translate`, `recorder`, and supported `fillblank` shapes.
+- `useManualMarking=true`: comment-only teacher marking for `imageupload` and `videoupload`.
+- `fillblank useManualMarking=true` is valid only for `aiScore=true` or a single standalone open blank.
+- Practice-only interactions (`scorm=false` or inside `showAfterSubmit`) do not infer manifest manual marking.
+
 ## Interactive blocks
 
 ### choice
@@ -173,7 +197,7 @@ Supported aliases in repo:
 
 Sections:
 
-- `[content]`, `[answer]`, `[explanation]`
+- `[content]`, `[answer]`, `[explanation]`, `[ai]`, `[template]`
 
 Key attributes:
 
@@ -181,7 +205,11 @@ Key attributes:
 - `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
+- `aiScore=true|false`
+- `share=true|false`
+- `shareComments=true|false`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Token rules:
 
@@ -194,6 +222,9 @@ Notes:
 
 - If `[answer]` has one non-empty line, it may use `,` `，` `;` `；` `、` separators.
 - Open mode treats any non-empty input as correct.
+- `aiScore=true` is mainly for one standalone short-answer blank; `[template]` may provide initial textarea scaffolding.
+- `share=true shareComments=true` only exposes the current shared-response UI for a single standalone short-answer blank.
+- `useManualMarking=true` is supported only for `aiScore=true` or a single standalone open blank.
 
 Source of truth:
 
@@ -382,6 +413,7 @@ Sections:
 - `[prompt]`, `[content]`, `[题干]`
 - `[answer]`, `[answers]`, `[参考答案]`, `[答案]`
 - `[explanation]`, `[解析]`
+- `[ai]`, `[ai点评]`, `[智能点评]`
 
 Key attributes:
 
@@ -392,11 +424,14 @@ Key attributes:
 - `weight`
 - `weightDistribution=shared|average`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Notes:
 
 - `type` maps to `markingType`.
 - In open mode, any non-empty input is treated as complete.
+- `[ai]` accepts `instruction`, `appId`, and `language`.
+- `useManualMarking=true` enables scored teacher marking for formal translate blocks.
 
 Source of truth:
 
@@ -424,7 +459,8 @@ Supported aliases in repo:
 Sections:
 
 - `[prompt]`, `[content]`, `[题干]`, `[写作要求]`
-- `[explanation]`, `[解析]`, `[范文]`, `[指导]`
+- `[explanation]`, `[解析]`, `[范文]`, `[sampleanswer]`, `[指导]`, `[guidance]`
+- `[ai]`, `[ai点评]`, `[智能点评]`
 
 Key attributes:
 
@@ -434,12 +470,17 @@ Key attributes:
 - `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
+- `share=true|false`
+- `shareComments=true|false`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Notes:
 
 - Prefer `writing` for short answer, paragraph writing, or essay tasks.
 - Do not invent a model essay if the source does not provide one.
+- Use `share=true shareComments=true` only when peer review or shared writing discussion is intended.
+- `useManualMarking=true` enables scored teacher marking and can coexist with AI writing feedback.
 
 Source of truth:
 
@@ -527,6 +568,11 @@ Key attributes:
 - `category=read_word|read_sentence|read_chapter|speak`
 - `language=en_us|zh_cn`
 - `recordOnly=true|false`
+- `phoneme_output=0|1`
+- `readtype_diagnosis=0|1`
+- `test_type=ielts|nmet`
+- `scorePolicy=service|completionOnly`
+- `feedbackView=default|transcription`
 - `allowPlayback=true|false`
 - `showScore=true|false`
 - `showScoreDetail=true|false`
@@ -540,13 +586,19 @@ Key attributes:
 - `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
+- `share=true|false`
+- `shareComments=true|false`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Notes:
 
 - Use only when the lesson really needs speaking/recording.
 - `category="speak"` can omit `script`, but do not rely on that unless the prompt text is clearly the spoken content.
 - `recordOnly=true` skips scoring and detail fetching but still counts the task as completed.
+- `scorePolicy="completionOnly"` keeps recorder completion/scoring flow but makes platform scoring completion-based.
+- `category="speak" feedbackView="transcription"` stores transcription-only feedback and implicitly uses completion-only platform scoring.
+- `useManualMarking=true` enables scored teacher marking unless the effective recorder policy is completion-only.
 
 Source of truth:
 
@@ -577,12 +629,16 @@ Key attributes:
 - `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
+- `share=true|false`
+- `shareComments=true|false`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Notes:
 
 - Completion-only upload task.
 - After a successful upload, the latest preview is shown on the page.
+- `useManualMarking=true` enables teacher comments only; it does not provide teacher score input.
 
 Source of truth:
 
@@ -612,12 +668,16 @@ Key attributes:
 - `scorm=true|false`
 - `weight`
 - `weightDistribution=shared|average`
+- `share=true|false`
+- `shareComments=true|false`
 - `isshared=true|false`
+- `useManualMarking=true|false`
 
 Notes:
 
 - Completion-only upload task.
 - After a successful upload, the latest preview is shown on the page.
+- `useManualMarking=true` enables teacher comments only; it does not provide teacher score input.
 
 Source of truth:
 
@@ -766,6 +826,48 @@ Notes:
 Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\markdown\remarkInlineAudio.ts`
+
+### askAI
+
+Inline canonical form:
+
+```md
+:askAI[Ask AI]{prompt="Explain this paragraph in simple terms." title="Reading help" app_id="kb-001"}
+```
+
+Definition/reference form for longer prompts:
+
+```md
+:::askAI{def=reading-help}
+Use this page's reading material. Explain difficult points briefly and cite the source text when possible.
+:::
+
+Read the passage, then :askAI[ask the AI companion]{ref=reading-help title="Reading help"}.
+```
+
+Supported aliases in repo:
+
+- `askAI`, `ask-ai`, `问AI`, `AI伴学`
+
+Key attributes:
+
+- `prompt`
+- `ref`
+- `def`
+- `app_id`
+- `title`
+
+Notes:
+
+- `askAI` is a content-level service trigger, not a formal interaction. It does not score, submit, or enter the interaction schema.
+- `:::askAI{def=...}` stores a current-page prompt and is pruned from visible output.
+- `prompt` wins over `ref`; missing prompt/ref opens the AI companion with an empty prompt.
+- The inline label supports normal inline markdown and `styleText`; do not rely on nested `pop`, `play`, or another `askAI`.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkAskAI.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\AskAI.tsx`
 
 ### collapse
 
@@ -1109,7 +1211,48 @@ Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkIframeBlock.ts`
 
-### showaftersubmit
+### media
+
+Canonical block:
+
+```md
+:::media{src="sample-video.mp4" type="video" title="Library video" aspect="16/9" transcript="toggle"}
+Transcript or teaching notes for the media.
+:::
+```
+
+Supported aliases in repo:
+
+- `media`
+
+Key attributes:
+
+- `src`
+- `type=auto|audio|video`
+- `title`
+- `poster`
+- `aspect`
+- `height`
+- `transcript=submitted|toggle|never`
+- `transcriptOpen=true|false`
+- `preload=none|metadata|auto`
+- `loop=true|false`
+- `muted=true|false`
+- `playsInline=true|false`
+- `rates`
+
+Notes:
+
+- Prefer `media` for a full audio/video player with transcript behavior.
+- Use Markdown image/media links or HTML `audio`/`video` for simpler media embeds.
+- `transcript=submitted` shows the transcript only after a formal submit path exists and the page has been submitted.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkMediaBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\MediaBlock.tsx`
+
+### showAfterSubmit
 
 Canonical block:
 
@@ -1121,7 +1264,7 @@ This content appears only after the page has really entered submitted state.
 
 Supported aliases in repo:
 
-- `showAfterSubmit`, `提交后显示`, `提交后内容`
+- `showAfterSubmit`, `showaftersubmit`, `提交后显示`, `提交后内容`
 
 Notes:
 
@@ -1216,47 +1359,24 @@ Source of truth:
 - `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkExportContentBlock.ts`
 
-### chatwithai
+### retired chatwithai
 
-Canonical block:
+`chatwithai` is retired in the current project.
 
-```md
-:::chatwithai{target="/01_showpowers/28_chatwithai_demos" scope="page" showControls=false maxTurns=4}
-:::
-```
+Use:
 
-Supported aliases in repo:
+- `aiCompanion` frontmatter or catalog config for the shell/menu AI entry.
+- `askAI` for an inline content-authored AI trigger.
+- `aiexercise` for runtime-generated practice.
 
-- `chatwithai`, `AI对话`
-
-Key attributes:
-
-- `target`
-- `targetPath`
-- `scope=page|folder`
-- `showControls=true|false`
-- `maxTurns`
-- `appId`
-- `title`
-- `placeholder`
-- `outOfScopeMessage`
-
-Notes:
-
-- Page/folder-scoped AI chat helper, not a scored interaction.
-- Use only when the user explicitly wants a contextual AI chat panel in the lesson.
-
-Source of truth:
-
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChatWithAiBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\chatWithAi\types.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\pages\01_showpowers\28_ChatWithAI_demos.mdx`
+Do not generate new `chatwithai` page content.
 
 ## Generation advice
 
 - For regular handouts, plain markdown + `choice` / `fillblank` / `matching` / `sorting` / `translate` / `writing` is usually enough.
 - Use `scorm=false` only for clearly optional practice.
 - Use `showAfterSubmit` when follow-up content should unlock only after the formal tracked task is finished.
-- Do not introduce `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `aiexercise`, `exportcontent`, or `chatwithai` unless the source or user explicitly asks for them.
+- Do not introduce `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `media`, `askAI`, `aiexercise`, or `exportcontent` unless the source or user explicitly asks for them.
+- Do not generate retired `chatwithai` content.
 - If a display block only adds decoration and not clarity, skip it.
 
