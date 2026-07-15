@@ -31,6 +31,9 @@ It is especially useful when the target output should use supported `mdx-scorm` 
 - [`references/syntax-inventory.md`](./references/syntax-inventory.md)
   A source-audited syntax guide for supported `mdx-scorm` directives and related authoring patterns.
 
+- [`references/component-authoring-cookbook.md`](./references/component-authoring-cookbook.md)
+  Default component writing patterns, including mature reading-course patterns and game-like practice blocks.
+
 ## Directory layout
 
 ```text
@@ -40,6 +43,7 @@ mdx-scorm-course-page/
 ├── assets/
 │   └── course-page-template.mdx
 └── references/
+    ├── component-authoring-cookbook.md
     └── syntax-inventory.md
 ```
 

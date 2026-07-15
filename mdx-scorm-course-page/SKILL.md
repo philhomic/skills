@@ -1,6 +1,6 @@
 ---
 name: mdx-scorm-course-page
-description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::media`, `:::exportcontent`, `styleBlock`, `collapse`, `pop`, `askAI`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
+description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::game-matching`, `:::game-memorymatch`, `:::game-choice`, `:::game-tokenbuilding`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::media`, `:::exportcontent`, `styleBlock`, `collapse`, `pop`, `askAI`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
 ---
 
 # mdx-scorm course page authoring
@@ -33,7 +33,7 @@ Before generating final page content, first determine where the result should go
 - When converting vocabulary or glossary material, keep the full original explanatory content. Do not replace full source definitions with shorter paraphrases just because the popup or page would be shorter.
 - When a source page contains `Source`, `Vocabulary Focus`, `Cultural/Professional Terms`, `Answer`, `参考译文`, `Skill Summary`, or similar labeled sections, assume they are required content by default and carry them over unless the user explicitly asks to remove or shorten them.
 - Use canonical ASCII directive syntax in final output even if the source material used Chinese aliases or full-width punctuation.
-- Respect the repo's strict frontmatter parser. Use supported single-line `key: value` fields, and only use nested `ai:` / `ai.prompt:` structures that the current parser accepts.
+- Respect the repo's strict frontmatter parser. Use supported single-line `key: value` fields by default, and only use documented special shapes such as `weights:`, `aiCompanion:`, and nested `ai:` / `ai.prompt:` when the current repo supports them.
 - For basic inline formatting, prefer normal Markdown first. When the source clearly needs underline, superscript, or subscript, use repo-compatible inline HTML such as `<u>...</u>`, `<sup>...</sup>`, and `<sub>...</sub>` instead of inventing pseudo-Markdown syntax.
 - Do not emit `import` statements for authored lesson pages.
 - Do not emit general interactive JSX such as `<Choice />`, `<FillBlank />`, or other custom components for user-authored content.
@@ -56,6 +56,7 @@ If the user gives a Word file, first use the `$docx` skill to extract readable t
 Read these before authoring:
 
 - `references/syntax-inventory.md` - source-audited directive and component syntax
+- `references/component-authoring-cookbook.md` - default component writing patterns and mature-course authoring examples
 - `assets/course-page-template.mdx` - default page scaffold
 
 If the task touches specific repo features, also inspect the relevant upstream docs from the target `mdx-scorm` repo before writing:
@@ -64,6 +65,8 @@ If the task touches specific repo features, also inspect the relevant upstream d
 - `User Manual.md` for author-facing block behavior and build-mode constraints
 - `catalogConfig扩展语法规范.md` when unit generation or catalog metadata is involved
 - `Recorder Feedback Detail Memo.md` when recorder detail behavior or score display matters
+
+If the user asks for default component forms or reference-course style alignment, inspect `D:\Projects\welearn-ninja\mdx-scorm-pages` and compare it with the cookbook before writing.
 
 If you are using only a small subset of blocks, read the relevant sections from the syntax inventory instead of loading unrelated material.
 
@@ -106,6 +109,10 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - fill-in-the-blank -> `:::fillblank`
    - word-bank cloze -> `:::choicecloze`
    - matching -> `:::matching`
+   - retry-until-complete matching game -> `:::game-matching`
+   - memory pair game -> `:::game-memorymatch`
+   - tile-like retry choice practice -> `:::game-choice`
+   - spelling, word-building, phrase-building, or sentence-building practice -> `:::game-tokenbuilding`
    - ordering/steps -> `:::sorting`
    - translation -> `:::translate`
    - short writing/essay -> `:::writing`
@@ -250,7 +257,7 @@ Use the simplest valid frontmatter that matches the page.
 - Use `feedback: submit` unless the user already asked for a different behavior. Remember this maps to the repo's current `submit_1` default behavior.
 - If the page includes interactive blocks, default to `numbering: type`.
 - If the page is display-only, default to `numbering: none`.
-- Only add optional fields like `numberingStart`, `weights`, `scoreCardGrouping`, `browseMode`, `scormDebug`, `scoreCardShowWeights`, `cardMode`, `isShowDictionary`, `showai`, or `ai:` when the user explicitly needs them.
+- Only add optional fields like `numberingStart`, `weights`, `scoreCardGrouping`, `browseMode`, `scormDebug`, `scoreCardShowWeights`, `cardMode`, `isShowDictionary`, `showai`, `ai:`, or `aiCompanion:` when the user explicitly needs them.
 
 ### Frontmatter parser rule
 
@@ -258,7 +265,9 @@ Treat frontmatter as a strict, repo-specific data format rather than generic YAM
 
 - Prefer single-line `key: value` entries.
 - Do not author arbitrary arrays, multiline strings, or deep nested objects.
-- Only `ai.prompt` should use list syntax when multiple prompts are required.
+- `weights:` may use the documented one-level map of interaction type to positive number.
+- `aiCompanion:` may use the documented one-level object shape.
+- `ai:` may use the documented one-level object shape, and only `ai.prompt` should use list syntax when multiple prompts are required.
 - If the page needs advanced page controls, mirror the shapes documented in the current repo instead of improvising YAML patterns.
 
 ### Tracked vs practice authoring rule
@@ -295,6 +304,7 @@ Use standard headings, paragraphs, lists, blockquotes, tables, images, audio, an
 - Use `splitpane`, `columns`, `carousel`, and `iframe` only when the source clearly calls for layout or embedded content.
 - Use `showAfterSubmit` only when the page really has a formal first-pass task and a meaningful post-submit follow-up.
 - Use `discussion` / `debate` only when the source truly expects threaded class interaction, not as a substitute for ordinary writing prompts.
+- Use `game-matching`, `game-memorymatch`, `game-choice`, and `game-tokenbuilding` only when the source or reference explicitly asks for game-like retry practice; keep exam-style items in normal interaction blocks.
 - Use `aiexercise`, `media`, `exportcontent`, and `askAI` only when the user explicitly wants generated practice, transcript-aware media, export tooling, or inline AI assistance on the page.
 
 ### Long expository page variation rule
@@ -425,6 +435,14 @@ Typical mappings:
 - word bank reused across several blanks -> `sticky`
 - short formula list / prompt checklist / step reminder -> `sticky`
 - one short note beside one question -> plain markdown or `styleBlock`, not `sticky`
+
+### Mature reading-course page patterns
+
+Use these patterns when the target material resembles the mature reading-course references:
+
+- Long reading passage plus nearby questions: use `splitpane`; put the source passage in `splitTop` and questions/tasks in `splitBottom`.
+- Passage vocabulary, footnotes, and professional terms: use inline `:pop[...]` triggers and place the matching `:::pop{def=...}` definitions near the page end.
+- Paragraph translations or answer explanations that should unlock only after submission: wrap them in `:::showAfterSubmit` and `:::collapse[...]`.
 
 ### Annotation and reference burden patterns
 
@@ -790,6 +808,7 @@ For unit work, also mention:
 
 - Canonical syntax wins over aliases in generated output.
 - `mdx-scorm` dynamic/user-authored content should stay directive-based.
+- Use `references/component-authoring-cookbook.md` when choosing concrete component shapes.
 - Keep frontmatter within the repo's strict supported shape; do not treat it as free-form YAML.
 - Use `scorm=false` sparingly for optional practice, and use `showAfterSubmit` when post-submit content should stay outside formal tracking.
 - Be faithful to the source.

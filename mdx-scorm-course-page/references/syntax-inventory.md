@@ -56,8 +56,11 @@ Current parser and page-control notes:
 - Prefer single-line `key: value` fields.
 - `feedback` accepts `submit`, `submit_<n>`, and `instant`.
 - `numberingStart` is a positive integer and only matters when numbering is enabled.
-- Common optional page-level fields include `weights`, `scoreCardShowWeights`, `noSubmit`, `scormDebug`, `autoShowScoreCardOnSubmit`, `scoreCardGrouping`, `cardMode`, `browseMode`, `isShowDictionary`, and `ai`.
-- Only `ai.prompt` supports list syntax; avoid arbitrary arrays, multiline strings, and deep nested objects.
+- Common optional page-level fields include `weights`, `scoreCardShowWeights`, `noSubmit`, `scormDebug`, `autoShowScoreCardOnSubmit`, `scoreCardGrouping`, `cardMode`, `browseMode`, `isShowDictionary`, `ai`, and `aiCompanion`.
+- `weights:` supports a one-level map from interaction type to positive number, including game interaction types such as `game-matching`, `game-memorymatch`, `game-choice`, and `game-tokenbuilding`.
+- `ai:` supports the documented one-level page AI object; `ai.prompt` is the only supported list shape when multiple prompts are required.
+- `aiCompanion:` supports the documented one-level object shape with fields such as `enabled`, `appId`, `interactiveVisibility`, and `questionOverlay`.
+- Avoid arbitrary arrays, multiline strings, and deep nested objects.
 
 Reference files:
 
@@ -333,6 +336,251 @@ Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkMatchingBlock.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+
+### game-matching
+
+Canonical block:
+
+```md
+:::game-matching{batchSize=4}
+[left]
+- :play[cat.mp3] cat
+- dog
+- bird
+
+[right]
+- 猫
+- 狗
+- 鸟
+:::
+```
+
+Sections:
+
+- `[left]`, `[right]`
+
+Key attributes:
+
+- `batchSize=<positive integer>`
+- `scorm=true|false`
+- `weight`
+- `weightDistribution=shared|average`
+- `isshared=true|false`
+
+Notes:
+
+- Whole game registers as one formal interaction.
+- Use for retry-until-complete matching practice, not ordinary exam-style matching.
+- Only `[left]` and `[right]` are supported; no `[options]` or `[explanation]`.
+- Left and right sections must contain the same number of cards.
+- The nth left card matches the nth right card.
+- Each card must be authored as one line.
+- Right-card identities must not duplicate.
+- The first `:play[...]` in a card line is supported; write audio as `:play[audio.mp3]`, not `:play[label]{src="audio.mp3"}`.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameMatchingBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameMatchingBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\01_game_matching.mdx`
+
+### game-memorymatch
+
+Canonical block:
+
+```md
+:::game-memorymatch{weight=2}
+[left]
+- cat
+- dog
+- :play[bird.mp3] bird
+
+[right]
+- 猫
+- 狗
+- 鸟
+:::
+```
+
+Sections:
+
+- `[left]`, `[right]`
+
+Key attributes:
+
+- `scorm=true|false`
+- `weight`
+- `weightDistribution=shared|average`
+- `isshared=true|false`
+
+Notes:
+
+- Whole game registers as one formal interaction.
+- Use for memory-card pair matching.
+- Only `[left]` and `[right]` are supported; no `[options]`, `[answer]`, or `[explanation]`.
+- Left and right sections must contain the same number of cards.
+- The nth left card matches the nth right card.
+- Each card must be authored as one line.
+- Card content may include normal single-line Markdown, images, and the first `:play[...]`.
+- This block is engine-backed in current `mdx-scorm`; it is not present in the current `mdx-scorm-pages` reference project.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameMemoryMatchBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameMemoryMatchBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+
+### game-choice
+
+Canonical block:
+
+```md
+:::game-choice
+[item]
+[prompt]
+Which word means "book"?
+
+[options]
+cat
+book
+desk
+
+[answer]
+B
+:::
+```
+
+Multi-item block:
+
+```md
+:::game-choice{weight=2}
+[item]
+[prompt]
+Select vowels.
+
+[options]
+あ
+か
+い
+さ
+
+[answer]
+A
+C
+
+[item]
+[prompt]
+Pick the English word.
+
+[options]
+桌子
+book
+猫
+
+[answer]
+2
+:::
+```
+
+Sections:
+
+- repeated `[item]`
+- per item: `[prompt]`, `[options]`, `[answer]`
+
+Key attributes:
+
+- `scorm=true|false`
+- `weight`
+- `weightDistribution=shared|average`
+- `isshared=true|false`
+
+Notes:
+
+- Whole game registers as one formal interaction.
+- Use for tile-like retry-until-correct choice practice. For ordinary quiz questions, prefer `choice`.
+- Each `[item]` must include `[prompt]`, `[options]`, and `[answer]`.
+- `[options]` supports 2 to 6 one-line options.
+- Answers may be option labels `A`-`F`, numbers `1`-`6`, or unambiguous option text.
+- Multiple answer lines create a multi-select item.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameChoiceBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameChoiceBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\03_game_choice.mdx`
+
+### game-tokenbuilding
+
+Canonical block:
+
+```md
+:::game-tokenbuilding{space="ignore" shuffle=true}
+[item]
+[prompt]
+:play[cat.mp3] Build the word.
+
+[answer]
+c a t
+
+[tiles]
+c a t x
+:::
+```
+
+Multi-item block:
+
+```md
+:::game-tokenbuilding{space="ignore" shuffle=true}
+[item]{space="strict" shuffle=false}
+[prompt]
+Build the phrase.
+
+[answer]
+in to
+
+[tiles]
+in to into
+
+[item]
+[prompt]
+Build the sentence.
+
+[answer]
+I ran into him .
+:::
+```
+
+Sections:
+
+- repeated `[item]`
+- per item: `[prompt]`, `[answer]`, optional `[tiles]`
+
+Key attributes:
+
+- `space=ignore|strict`
+- `shuffle=true|false`
+- `scorm=true|false`
+- `weight`
+- `weightDistribution=shared|average`
+- `isshared=true|false`
+
+Notes:
+
+- Whole game registers as one formal interaction.
+- Use for spelling, word-building, phrase-building, or sentence-building practice.
+- `[answer]` is required; `[tiles]` is optional and falls back to answer tokens when omitted.
+- `[answer]` and `[tiles]` split tokens by whitespace. Include punctuation as its own token when students must select it.
+- `space` and `shuffle` may be set on the whole block or on an individual `[item]{...}`; item-level values override block-level values.
+- `space="ignore"` compares the joined answer after whitespace removal; `space="strict"` compares the token sequence.
+
+Source of truth:
+
+- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameTokenBuildingBlock.ts`
+- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameTokenBuildingBlock.tsx`
+- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\02_game_tokenbuilding.mdx`
 
 ### sorting
 
@@ -707,15 +955,26 @@ Use for:
 
 Allowed style keys:
 
-- `background`, `background-color`, `background-image`
+- `background`, `background-color`, `background-image`, `background-position`, `background-repeat`, `background-size`
 - `box-shadow`
-- `border-*`
+- `border`, `border-color`, `border-radius`, `border-style`, `border-width`
+- `border-bottom`, `border-bottom-color`, `border-bottom-style`, `border-bottom-width`
+- `border-left`, `border-left-color`, `border-left-style`, `border-left-width`
+- `border-right`, `border-right-color`, `border-right-style`, `border-right-width`
+- `border-top`, `border-top-color`, `border-top-style`, `border-top-width`
 - `color`
-- `font-size`, `font-weight`
+- `font-family`, `font-size`, `font-weight`, `font-style`
 - `letter-spacing`, `line-height`
-- `list-style-*`, `list-marker-*`
-- `margin*`, `padding*`, `max-width`, `opacity`
-- `text-align`, `text-decoration*`, `text-shadow`, `text-indent`, `text-underline-offset`
+- `list-style-position`, `list-style-type`
+- `list-marker-color`, `list-marker-size`, `list-marker-weight`
+- `margin`, `margin-bottom`, `margin-left`, `margin-right`, `margin-top`
+- `max-width`, `min-height`, `opacity`
+- `outline`, `outline-color`, `outline-offset`, `outline-style`, `outline-width`
+- `overflow-wrap`
+- `padding`, `padding-bottom`, `padding-left`, `padding-right`, `padding-top`
+- `text-align`, `text-align-last`, `text-decoration`, `text-decoration-color`, `text-decoration-style`, `text-decoration-thickness`, `text-indent`, `text-shadow`, `text-transform`, `text-underline-offset`
+- `vertical-align`
+- `word-break`, `word-spacing`
 
 Notes:
 
@@ -745,6 +1004,7 @@ Suggested authoring mappings:
 
 Source of truth:
 
+- `D:\Projects\welearn-ninja\packages\mdx-semantics\src\style-semantics.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\components\styleProps.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleBlock.ts`
 
@@ -1376,7 +1636,7 @@ Do not generate new `chatwithai` page content.
 - For regular handouts, plain markdown + `choice` / `fillblank` / `matching` / `sorting` / `translate` / `writing` is usually enough.
 - Use `scorm=false` only for clearly optional practice.
 - Use `showAfterSubmit` when follow-up content should unlock only after the formal tracked task is finished.
-- Do not introduce `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `media`, `askAI`, `aiexercise`, or `exportcontent` unless the source or user explicitly asks for them.
+- Do not introduce `game-matching`, `game-memorymatch`, `game-choice`, `game-tokenbuilding`, `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `media`, `askAI`, `aiexercise`, or `exportcontent` unless the source or user explicitly asks for them.
 - Do not generate retired `chatwithai` content.
 - If a display block only adds decoration and not clarity, skip it.
 
