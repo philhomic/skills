@@ -1,6 +1,6 @@
 ---
 name: mdx-scorm-course-page
-description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::game-matching`, `:::game-memorymatch`, `:::game-choice`, `:::game-tokenbuilding`, `:::sorting`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::media`, `:::exportcontent`, `styleBlock`, `collapse`, `pop`, `askAI`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
+description: Use this skill whenever the user wants to turn a Word handout, pasted lesson text, teaching notes, exercise sheet, or mixed lecture material into `mdx-scorm` lesson content. Use it both for single-page generation and for template-driven unit generation when the user provides a reference unit folder or reference pages and asks to make a new unit “按这个模子生成”, “参考已有页面生成”, or “照着 Unit 1 做 Unit 2”. This skill is the default choice for requests like “转成 mdx-scorm 页面”, “用指令块做课件”, “生成 src/pages 下的课程内容”, “把讲义做成一页课”, or any request to author `mdx-scorm` content with directive blocks such as `:::choice`, `:::fillblank`, `:::choicecloze`, `:::matching`, `:::game-matching`, `:::game-memorymatch`, `:::game-choice`, `:::game-tokenbuilding`, `:::sorting`, `:::classification`, `:::translate`, `:::writing`, `:::discussion`, `:::debate`, `:::recorder`, `:::imageupload`, `:::videoupload`, `:::showAfterSubmit`, `:::aiexercise`, `:::media`, `:::exportcontent`, `:::knowledgeGraph`, `styleBlock`, `collapse`, `pop`, `askAI`, `sticky`, `wide`, `splitpane`, `columns`, `carousel`, or `iframe`. Prefer this skill even when the user only mentions Word/course content and does not explicitly name the repo. Also trigger proactively whenever the user mentions `mdx`, `scorm`, or `welearn`, because those mentions are strong signals that this skill should be considered first.
 ---
 
 # mdx-scorm course page authoring
@@ -58,6 +58,7 @@ Read these before authoring:
 - `references/syntax-inventory.md` - source-audited directive and component syntax
 - `references/component-authoring-cookbook.md` - default component writing patterns and mature-course authoring examples
 - `assets/course-page-template.mdx` - default page scaffold
+- `references/classification-and-knowledge-graph.md` when authoring either `classification` or `knowledgeGraph`; it records their source-backed structures, validation boundaries, and preflight checks.
 
 If the task touches specific repo features, also inspect the relevant upstream docs from the target `mdx-scorm` repo before writing:
 
@@ -114,6 +115,7 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - tile-like retry choice practice -> `:::game-choice`
    - spelling, word-building, phrase-building, or sentence-building practice -> `:::game-tokenbuilding`
    - ordering/steps -> `:::sorting`
+   - categorization with one or more correct target groups -> `:::classification`; use it only when the source supplies the groups and their candidate membership
    - translation -> `:::translate`
    - short writing/essay -> `:::writing`
    - class discussion or debate -> `:::discussion` / `:::debate`
@@ -121,6 +123,7 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - image/video submission -> upload blocks
    - post-submit explanation or follow-up practice -> `:::showAfterSubmit`
    - runtime AI-generated extra practice -> `:::aiexercise` only when the user or reference explicitly calls for it
+   - a course concept map -> `:::knowledgeGraph` only when the user explicitly requests a graph or supplies a graph-ready model; do not invent relationships, categories, or lesson links from ordinary exposition
    - full audio/video player with transcript behavior -> `:::media`
    - inline AI companion launch -> `:askAI[...]` only when the course design asks for it
 5. Build the page:
@@ -136,6 +139,7 @@ In this mode, do not start by copying folder structure blindly. First infer how 
    - no silent compression or omission of labeled source sections
    - no shortened vocabulary / glossary definitions unless explicitly requested
    - directive fences are balanced
+   - `classification` and `knowledgeGraph`, when used, pass their feature-specific source checks in `references/classification-and-knowledge-graph.md`
    - if interactions exist, numbering mode is set deliberately
 
 ## Template unit mode workflow
@@ -253,7 +257,6 @@ Do not force the target into the reference shape just for symmetry.
 
 Use the simplest valid frontmatter that matches the page.
 
-- Always include `title`.
 - Use `feedback: submit` unless the user already asked for a different behavior. Remember this maps to the repo's current `submit_1` default behavior.
 - If the page includes interactive blocks, default to `numbering: type`.
 - If the page is display-only, default to `numbering: none`.
@@ -285,6 +288,15 @@ When the page uses local images, audio, or video:
 - Author them as package-relative media references that resolve through `public/media`.
 - Prefer normal markdown or supported HTML media tags over custom imports.
 - Do not encode runtime package identity or `offline_media_id` assumptions into the content path itself.
+
+### Classification and knowledge-graph decision rule
+
+These two directives have narrower contracts than ordinary display blocks, so choose them for their teaching purpose rather than visual variety.
+
+- Use `classification` for a scored or practice categorization task: learners place supplied candidates into one or more named targets. Keep the question wording in normal page Markdown, not in the directive. Do not use it to present a static taxonomy.
+- Use `knowledgeGraph` for a navigable, course-level concept map backed by explicit JSON. It is display-only, not a SCORM question, and its graph data must be independently verifiable. If the material only provides a prose outline, retain the outline or ask for the intended relationships instead of fabricating a graph.
+- Use their exact canonical spellings: `classification` and case-sensitive `knowledgeGraph`. Neither accepts a Chinese alias; `knowledgeGraph` cannot be lowercased.
+- Read `references/classification-and-knowledge-graph.md` before emitting either block. In a real course, validate every graph `lesson` path against the resulting `pages/` inventory with exact casing before finalizing.
 
 ## Authoring heuristics
 
@@ -814,6 +826,3 @@ For unit work, also mention:
 - Be faithful to the source.
 - When unsure, choose simpler syntax over clever syntax.
 - Learn transformation patterns from the reference unit; do not copy its facts into the target unit.
-
-
-
