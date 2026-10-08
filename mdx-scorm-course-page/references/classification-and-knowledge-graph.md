@@ -2,7 +2,7 @@
 
 Use this reference only when generating either of these directives. It captures the current `mdx-scorm` author contract: write the smallest valid source form, preserve supplied learning data, and let the runtime provide interaction controls and visual behavior.
 
-Before authoring, inspect the target repo's current `User Manual.md` and, when available, the actual course page inventory. Preview diagnostics are intentionally tolerant; do not treat preview recovery as permission to write an invalid source contract.
+When the target repository is available, inspect its current `User Manual.md` and actual course page inventory. Otherwise use this bundled contract and omit unverifiable lesson links. Preview diagnostics are intentionally tolerant; do not treat preview recovery as permission to write an invalid source contract.
 
 ## `classification`: learner categorization
 
@@ -64,7 +64,7 @@ Learners can drag an item, or select an item and choose a target; the latter als
 2. Confirm the source, not the author, supplies every correct target-item relation.
 3. Confirm each intended shared item is source-identical in each target.
 4. Keep the target-by-item matrix within the SCORM learner-response limit; use parser/build diagnostics rather than guessing a safe size for a very large task.
-5. Set page numbering and `scorm` deliberately, because this is an interaction.
+5. Inherit numbering and normal SCORM participation unless an explicit override is needed; do not add redundant frontmatter. Use `weight=0` for a requested non-scoring question without disabling tracking.
 
 ## `knowledgeGraph`: strict display-only course map
 
@@ -79,7 +79,7 @@ Choose `knowledgeGraph` only for an explicit concept graph whose nodes, relation
 - Layouts are `dagre`, `force`, `radial`, and `circular`. Directions are `LR`, `RL`, `TB`, and `BT`, and only affect `dagre`; specifying one for another layout produces a warning.
 - `height` is a finite positive number in CSS pixels (not `460px`); values below `320` warn about readability. Density is `auto`, `compact`, `normal`, or `comfortable`. `title=""` hides the visible title but retains an accessible name.
 
-The course-wide reference at `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\00_course_info\01_course_info.mdx` demonstrates a valid default-attribute graph with categories, descriptions, `contains` hierarchy, a `related` edge, and exact `.mdx` lesson links.
+The historical course example at `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\00_course_info\01_course_info.mdx` may be unavailable in a target checkout. Use the caller's actual page inventory; do not assume that historical file or its lesson paths still exist.
 
 Start with a minimal graph and add only source-supported data:
 

@@ -8,6 +8,7 @@ Use it when generating authored lesson pages. Prefer the canonical ASCII syntax 
 
 - Keep directive fences on their own lines.
 - Use canonical directive names in final output.
+- Use `@--@` for ordinary blank positions in both `fillblank` and `choicecloze`. `@blank@` is invalid and must never appear in generated MDX.
 - Nested display directives are allowed.
 - Do not nest one interactive question block inside another interactive question block.
 - The runtime normalizes Chinese aliases, full-width punctuation, and some mojibake prefixes, but generated output should stay canonical.
@@ -25,6 +26,30 @@ Use standard Markdown for normal inline emphasis:
 - `~~strikethrough~~`
 - `` `code` ``
 
+This Markdown form is valid only when the formatted span does not contain an inline `pop`. Do not author forms such as:
+
+```md
+**aaa :pop[trigger]{ref=term-trigger} bbb**
+```
+
+The renderer does not support `pop` nested inside Markdown emphasis or strikethrough delimiters. When the formatted span contains `:pop[...]`, replace the whole surrounding delimiter pair with inline HTML:
+
+- italic -> `<i>aaa :pop[trigger]{ref=term-trigger} bbb</i>`
+- bold -> `<b>aaa :pop[trigger]{ref=term-trigger} bbb</b>`
+- strikethrough -> `<del>aaa :pop[trigger]{ref=term-trigger} bbb</del>`
+- bold italic -> `<b><i>aaa :pop[trigger]{ref=term-trigger} bbb</i></b>`
+- bold italic strikethrough -> `<b><i><del>aaa :pop[trigger]{ref=term-trigger} bbb</del></i></b>`
+
+For any other combination, retain the canonical tag order `b` outermost, then `i`, then `del`, and omit tags that do not apply. Convert only the smallest complete formatting span that contains the `pop`; keep unrelated emphasis in Markdown.
+
+Write external webpage links with standard Markdown link syntax:
+
+```md
+[Article title](https://example.com/article)
+```
+
+This applies especially to `Source`, `Adapted from`, and reference lines. Do not use angle-bracket autolinks such as `<https://example.com>` because the course renderer does not support them. Prefer a readable article title, publication, or source label as the link text. If no label is available, write `[https://example.com](https://example.com)`.
+
 When the source clearly needs underline, superscript, or subscript, use inline HTML because standard Markdown does not define them:
 
 - underline -> `<u>key term</u>`
@@ -39,22 +64,18 @@ Notes:
 
 ## Frontmatter baseline
 
-Minimal safe page header:
+A page needs no frontmatter by default. Add `title` only on explicit user request; preserve existing titles when editing. Example body:
 
 ```mdx
----
-title: Your Page Title
-feedback: submit
-numbering: type
----
+# Page heading
 ```
 
-Use `numbering: none` when the page has no interactions.
+Let the course runtime supply its default feedback and numbering behavior. Do not emit `feedback`, `numberType`, `numberingType`, `numbering`, or page-level `type` unless the corresponding reference page explicitly uses a supported override or the author explicitly requests one. In particular, omit `feedback: submit` when it only restates the runtime default.
 
 Current parser and page-control notes:
 
 - Prefer single-line `key: value` fields.
-- `feedback` accepts `submit`, `submit_<n>`, and `instant`.
+- When explicitly required, `feedback` accepts `submit`, `submit_<n>`, and `instant`.
 - `numberingStart` is a positive integer and only matters when numbering is enabled.
 - Common optional page-level fields include `weights`, `scoreCardShowWeights`, `noSubmit`, `scormDebug`, `autoShowScoreCardOnSubmit`, `scoreCardGrouping`, `cardMode`, `browseMode`, `isShowDictionary`, `ai`, and `aiCompanion`.
 - `weights:` supports a one-level map from interaction type to positive number, including game interaction types such as `game-matching`, `game-memorymatch`, `game-choice`, and `game-tokenbuilding`.
@@ -67,7 +88,11 @@ Reference files:
 - `D:\Projects\welearn-ninja\mdx-scorm\frontmatter写法规范.md`
 - `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 
+`scoreCardShowWeights` controls weight-number visibility only. Resolution: explicit page frontmatter → nearest configured group → unit → course → default true. Course syntax is `Catalog { org.scorecardshowweights=false }`; unit/group use `scoreCardShowWeights=false`. Omission restores inheritance; do not add redundant page overrides. Catalog `(mdx)` entries are not an override layer.
+
 ## Media authoring
+
+Ordinary loaded body images already open the course image viewer with zoom controls, wheel/pinch zoom, drag when zoomed, and close controls. Images inside links or interactive controls keep their original action. Use `data-image-viewer-disabled="true"` on an ancestor only when this behavior must be disabled. Do not generate zoom scripts. Print/PDF keeps static images.
 
 Use package-relative authored paths and let the runtime normalize them through `/media/...`.
 
@@ -88,8 +113,8 @@ Examples:
 Notes:
 
 - Place local assets under `public/media/`.
-- External URLs (`https://...`) are left untouched.
-- Direct HTML media tags and markdown image/link syntax are both supported.
+- Preserve each external URL target exactly when wrapping it in Markdown link syntax; do not silently shorten, normalize, or replace the destination.
+- Direct HTML media tags and Markdown image/link syntax are both supported. For an ordinary external webpage link, use `[display text](https://...)`, not `<https://...>`.
 - Do not encode `offline_media_id` or package folder assumptions into the content path itself.
 
 ## SCORM participation rule
@@ -100,12 +125,16 @@ Most low-level interactions default to tracked mode.
 - `scorm=false` keeps the task usable but removes it from numbering, score cards, submit gating, `cmi.interactions.*` writes, and tracked restore.
 - `ShowAfterSubmit` forces all nested interactive descendants into practice mode even if a child block was authored with `scorm=true`.
 
+For a question that should not count toward the score, set `weight=0`, not `scorm=false`. Zero-weight formal questions retain completion checks, submission, and restoration. Question-level `weight` accepts nonnegative values; page-level `weights` still accepts positive values only. Do not generate `scorm=false` unless the user explicitly requests exclusion from formal tracking.
+
 ## Common interaction attributes
+
+Unless the user explicitly requests input rows or height, omit `rows` for every component. Supported row attributes below document capability, not defaults to generate.
 
 Most formal interaction directives support the following current attributes:
 
 - `id`: stable interaction id, useful for manual marking and long-term restore stability.
-- `weight`: base weight for scored interaction types.
+- `weight`: nonnegative base weight; use `0` for a non-scoring formal question.
 - `weightDistribution=shared|average`: child-slot weight behavior.
 - `scorm=true|false`: `false` makes the interaction practice-only.
 - `open`: completion-only mode for supported items.
@@ -120,7 +149,7 @@ Current subjective sharing is controlled by `share`, not legacy `isshared`:
 Manual marking is explicit per formal interaction:
 
 - `useManualMarking=true`: scored teacher marking for `writing`, `translate`, `recorder`, and supported `fillblank` shapes.
-- `useManualMarking=true`: comment-only teacher marking for `imageupload` and `videoupload`.
+- `useManualMarking=true`: scored teacher marking with comments for `imageupload` and `videoupload`.
 - `fillblank useManualMarking=true` is valid only for `aiScore=true` or a single standalone open blank.
 - Practice-only interactions (`scorm=false` or inside `showAfterSubmit`) do not infer manifest manual marking.
 
@@ -166,9 +195,10 @@ Key attributes:
 
 Notes:
 
-- Multi-select is created by multiple answers, for example `A C`.
+- Multi-select is authored with one answer label per line, for example `A` on one line and `C` on the next.
+- With `open=true`, zero or more answer labels are valid. A supplied answer is a reference answer and does not participate in scoring; an empty `[answer]` section is valid and must not be auto-filled.
 - Labels can be letters, numbers, roman numerals, Chinese labels, or custom labels.
-- Answers are case-insensitive and accept spaces, commas, Chinese commas, or line breaks.
+- The runtime accepts spaces, commas, Chinese commas, or line breaks, but generated course content must use line breaks only. Do not author `AC`, `A C`, `A,C`, `A，C`, `A、C`, or other same-line multi-answer forms.
 - Option continuation lines are preserved.
 
 Source of truth:
@@ -220,11 +250,14 @@ Token rules:
 - `@answer@` embeds an inline answer
 - `@a|b@` allows multiple correct answers
 - `\@` escapes a literal `@`
+- `@blank@` is not an authored blank token; use `@--@`. Do not replace literal quoted/source examples blindly.
 
 Notes:
 
 - If `[answer]` has one non-empty line, it may use `,` `，` `;` `；` `、` separators.
 - Open mode treats any non-empty input as correct.
+- Ordinary FillBlank answer comparisons normalize straight/curly single and double quotation marks; preserve curly visible prose and do not claim this behavior for every interaction.
+- `rows` now accepts a positive integer for standalone FillBlank textareas, including AI FillBlank; the runtime default is 2. It does not resize inline blanks. Omit it unless the user explicitly requests rows or input height.
 - `aiScore=true` is mainly for one standalone short-answer blank; `[template]` may provide initial textarea scaffolding.
 - `share=true shareComments=true` only exposes the current shared-response UI for a single standalone short-answer blank.
 - `useManualMarking=true` is supported only for `aiScore=true` or a single standalone open blank.
@@ -233,6 +266,8 @@ Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkFillBlankBlock.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+
+For requested per-blank non-AI scoring, `interactionWeights="1,1,3"` supplies final weights in actual blank order, including embedded answers. It overrides `weight`, `weightDistribution` and page type weights. Supply one finite nonnegative number per blank; do not combine with `aiScore=true`. Invalid configuration blocks normal submission. See [reading-and-reveal.md](reading-and-reveal.md#fillblank-final-per-blank-weights).
 
 ### choicecloze
 
@@ -244,13 +279,19 @@ Canonical block:
 Dolphins are @--@ and remain @--@ in groups.
 
 [options]
-social | solitary | playful
+i. social | ii. solitary | iii. playful
 
 [answer]
 1
 3
 :::
 ```
+
+Answer indexing:
+
+- `[answer]` may use a matching uppercase alphabetic option label when the options are written as `A. ...`, `B. ...`, `C. ...` or as a bare label list such as `A | B | C`; retaining `A`, `B`, or `C` is valid.
+- When options are labeled with ASCII or Unicode Roman numerals (`i.`, `ii.`, `iii.` or `ⅰ.`, `ⅱ.`, `ⅲ.`), `[answer]` must use the corresponding 1-based decimal position (`1`, `2`, `3`, ...).
+- Never place Roman numerals such as `ii` or `ⅲ` in `[answer]`. Unlabeled option lists should also use decimal positions.
 
 Supported aliases in repo:
 
@@ -273,6 +314,7 @@ Token rules:
 - `@--@` consumes options and answers in order
 - `@answer@` embeds the correct value inline and still consumes one options line
 - `\@` escapes a literal `@`
+- `@blank@` is not an authored blank token; use `@--@`. Do not replace literal quoted/source examples blindly.
 
 Notes:
 
@@ -329,7 +371,7 @@ Key attributes:
 Notes:
 
 - Open mode accepts any non-empty selection.
-- Duplicate selections are allowed.
+- Duplicate selections are allowed, but candidate display values across `[right]` and `[options]` must be unique. Repeating the same display value as two authored candidates raises a runtime error.
 - Prefer this block only when the source clearly contains left/right pairing material.
 
 Source of truth:
@@ -502,7 +544,7 @@ Notes:
 - Each `[item]` must include `[prompt]`, `[options]`, and `[answer]`.
 - `[options]` supports 2 to 6 one-line options.
 - Answers may be option labels `A`-`F`, numbers `1`-`6`, or unambiguous option text.
-- Multiple answer lines create a multi-select item.
+- Multiple answer lines create a multi-select item. Put exactly one option label on each line; do not concatenate labels or separate multiple labels on one line.
 
 Source of truth:
 
@@ -512,6 +554,9 @@ Source of truth:
 - `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\03_game_choice.mdx`
 
 ### game-tokenbuilding
+
+Answer comparisons normalize straight/curly quotation marks while preserving authored display text. This does not imply quote equivalence in every other component.
+
 
 Canonical block:
 
@@ -582,6 +627,39 @@ Source of truth:
 - `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 - `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\02_game_tokenbuilding.mdx`
 
+### classification
+
+Use for assigning items to one or more category targets. The stem belongs in ordinary prose outside the directive; do not invent internal `[stem]`, `[answer]`, or `[options]` sections.
+
+```mdx
+Classify the animals.
+
+::::classification
+:::target
+[title]
+Mammals
+[items]
+Cat
+Dog
+:::
+:::target
+[title]
+Birds
+[items]
+Eagle
+:::
+::::
+```
+
+- Require one or more `target` blocks, each with `[title]` and nonempty `[items]`. Each nonempty ordinary item line is one candidate.
+- Use `:::item` inside `[items]` to wrap one multiline/rich Markdown candidate. `target` and `item` are internal structures, never standalone questions.
+- To put one candidate in multiple categories, repeat exactly the same source, including inline Markdown, in each corresponding `[items]` section. Different source creates different candidates. Preserve supplied membership; do not guess answers.
+- A `styleBlock` directly inside `classification` may wrap exactly one `target` and no other content. Do not nest other structural directives in the classification structure; do not nest interactive questions inside items.
+- Supported outer attributes: `weight`, `weightDistribution=shared|average`, `isshared`, `scorm`. Feedback inherits page `feedback` / `feedbackMode`; there is no question-level `feedbackMode` attribute. Do not use `open`, `share`, `shareComments`, or `useManualMarking`.
+- Learners can drag candidates or select a candidate then a target, including on touch devices. Multiple target membership is allowed. Completion requires every candidate to be placed at least once; scoring counts correct, incorrect, and missing relations.
+- Print/PDF is static: student output shows candidates and empty targets; teacher output shows correct membership. Runtime support is not proof that every rich source shape has native visual-editor support; preserve source when the editor falls back.
+- Before returning, check nesting/fences, required sections, actual candidates, identical source for repeated candidates, and the absence of unsupported attributes. The bundled recurring-output script is not the full runtime classification parser; use host validation when available.
+
 ### sorting
 
 Canonical block:
@@ -625,12 +703,26 @@ Notes:
 
 - No open mode.
 - If `[items]` is omitted, top-level list lines may be treated as sorting items.
+- Author every sorting item with decimal numbering or the hyphen bullet `-`, such as `1. Item text` or `- Item text`.
+- Do not use `*` or `+` as sorting-item bullets.
+- Bare alphabetic markers such as `A. Item text` are not supported item markers. If the source label must remain visible, prepend a supported list marker, for example `1. A. Item text` or `- A. Item text`.
 - `shuffleItems` defaults to `true`.
 
 Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkSortingBlock.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\components\SortingBlock.tsx`
+
+### textselect / textedit
+
+Engine-backed text exercises. Use exact lowercase names; no aliases. Read [Text exercises](text-exercises.md) for the complete self-contained contract and examples before generating them.
+
+- `textselect{mode="word"}`: mark each answer in literal `[content]` with `:pick[word]`; use `mode="span"` for `:pick[complete phrase]`.
+- `textedit`: encode source-supported corrections as `:fix[old]{to="new"}`, `:del[old]`, `:add[new]`. Use square brackets, not `:fix{}{to="..."}`, `:fix[]{...}` or a separate `[answer]` section.
+- Both use optional Markdown `[prompt]`, required literal `[content]`, optional Markdown `[explanation]`; never repeat a section. The original content remains visible to learners, with answers hidden until feedback is allowed.
+- Supported attrs: `id`, `open`, `weight`, `scorm`, `showExplanation`; only textselect has `mode`. Omit unrequested attrs. `open=true` is completion-based; `weight=0` independently excludes score weight while preserving formal participation. Do not add `aiScore`, `[ai]`, `rows`, `share`, `useManualMarking` or `weightDistribution`.
+- Keep each original passage within 300 tokenizer units; do not truncate to fit. No nested markers, token-fragment answers, overlapping answers, or rich content inside `[content]`.
+- The bundled Python validator is not a full text-exercise grammar checker; retain host validation.
 
 ### translate
 
@@ -650,7 +742,7 @@ Optional explanation.
 :::
 ```
 
-Supports only Chinese-to-English Translation.
+Project authoring default: Chinese-to-English translation. The parser itself has no language-direction restriction; verify the target grading service before promising other directions.
 
 Supported aliases in repo:
 
@@ -680,18 +772,40 @@ Notes:
 - In open mode, any non-empty input is treated as complete.
 - `[ai]` accepts `instruction`, `appId`, and `language`.
 - `useManualMarking=true` enables scored teacher marking for formal translate blocks.
+- For the default English-to-Chinese AI-grading workflow, prefer the following AI fill-in shape. Explicit manual/open/non-AI requirements take precedence; do not silently enable AI.
+
+```mdx
+:::fillblank{aiScore=true}
+[content]
+21. Please translate the following sentence into Chinese.
+
+> Meanwhile, China, with its steadfast commitment and remarkable progress in green development, has emerged as a champion in the global transition to renewable energy, serving as a beacon of hope in the fight against climate change.
+
+@--@
+
+[answer]
+与此同时，中国凭借在绿色发展领域的坚定承诺与显著进展，已成为全球向可再生能源转型的引领者，在应对气候变化的行动中扮演着希望的灯塔。
+
+[ai]
+instruction: 这是一道句子英译中的题目。请重点评价翻译质量，给出翻译的优缺点。
+:::
+```
+
+- Use one block per English-to-Chinese item, with exactly one `@--@`, the complete Chinese reference translation in `[answer]`, and an English-to-Chinese quality-evaluation instruction in `[ai]`. Use only the English directive and section labels shown above, even when a supplied source template uses Chinese aliases.
 
 Source of truth:
 
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkTranslateBlock.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\components\TranslateBlock.tsx`
 
+For `translate` with `open=true`, a configured `[ai]` section can provide AI feedback without displaying a score; completion remains based on nonempty input. Do not add AI configuration without source/user intent.
+
 ### writing
 
 Canonical block:
 
 ```md
-:::writing{agent="quanjing" rows=5}
+:::writing{agent="quanjing" }
 [prompt]
 Write about your favorite season.
 
@@ -725,7 +839,8 @@ Key attributes:
 
 Notes:
 
-- Prefer `writing` for short answer, paragraph writing, or essay tasks.
+- Use `writing` for paragraph composition or essay tasks. For question answering / short answers, use one standalone `fillblank` blank per question; use `aiScore=true` when AI scoring is requested.
+- With `open=true`, a configured `[ai]` section can provide AI feedback without displaying a score; completion remains based on nonempty input.
 - Do not invent a model essay if the source does not provide one.
 - Use `share=true shareComments=true` only when peer review or shared writing discussion is intended.
 - `useManualMarking=true` enables scored teacher marking and can coexist with AI writing feedback.
@@ -740,7 +855,7 @@ Source of truth:
 Canonical block:
 
 ```md
-:::discussion{rows=4}
+:::discussion
 [topic]
 Which matters more in language learning, input or output?
 
@@ -752,7 +867,7 @@ Post your own view first. Then try quoting and replying to a classmate.
 Debate variant:
 
 ```md
-:::debate{rows=4}
+:::debate
 [topic]
 Universities should make AI writing tools mandatory in every writing class.
 
@@ -770,12 +885,14 @@ Sections:
 
 - `[topic]`
 - `[guide]`
-- optional empty-state or helper sections may be added in JSX, but authored directive usage should stay simple
+- optional `[empty]` defines the empty-state text; it is supported in the directive, not only JSX
 
 Key attributes:
 
 - `rows=<positive integer>`
-- `labels=none`
+- `labels` / `label` (including `none`)
+- `mode=debate` on `discussion`
+- `preset=opinion|essay|proposal|project|summary|reflection|report`
 - `supportLabel`
 - `opposeLabel`
 - `isshared=true|false`
@@ -785,6 +902,7 @@ Notes:
 
 - This is a completion-oriented threaded class interaction, not a normal essay box.
 - Use it only when the lesson truly expects class discussion or debate.
+- Completion requires class readiness, joined-class access and the learner's published post; an editor draft alone is insufficient. Published-state changes update page completion.
 - Joined-class state affects completion at runtime; do not use it as a generic replacement for `writing`.
 
 Source of truth:
@@ -884,9 +1002,9 @@ Key attributes:
 
 Notes:
 
-- Completion-only upload task.
+- Upload completion earns the automatic full score for this interaction; pending/failed uploads do not establish completion. Use `weight=0` only when requested to remove its score weight while retaining tracking.
 - After a successful upload, the latest preview is shown on the page.
-- `useManualMarking=true` enables teacher comments only; it does not provide teacher score input.
+- `useManualMarking=true` enables teacher score and comment entry; a saved teacher score overrides the automatic score. Uploading does not imply AI evaluation of media quality.
 
 Source of truth:
 
@@ -923,9 +1041,9 @@ Key attributes:
 
 Notes:
 
-- Completion-only upload task.
+- Upload completion earns the automatic full score for this interaction; pending/failed uploads do not establish completion. Use `weight=0` only when requested to remove its score weight while retaining tracking.
 - After a successful upload, the latest preview is shown on the page.
-- `useManualMarking=true` enables teacher comments only; it does not provide teacher score input.
+- `useManualMarking=true` enables teacher score and comment entry; a saved teacher score overrides the automatic score. Uploading does not imply AI evaluation of media quality.
 
 Source of truth:
 
@@ -933,7 +1051,19 @@ Source of truth:
 
 ## Display blocks and helpers
 
+### reading / chunk
+
+Use `:::reading{src="lesson.mp3" type=audio}` with inline `:chunk[Passage text]{start="0" end="3.5"}` for synchronized text. Read [reading-and-reveal.md](reading-and-reveal.md#reading--chunk-synchronized-reading) for media, timing, nesting and export constraints. Reading itself is not scored.
+
+### reveal / revealed
+
+Local inline: `:reveal[**answer**]{label="Show answer"}`. Local block: `:::reveal[Show hint]` wraps hidden body content. Linked regions: `:reveal[Show]{show=group}` with `:revealed[content]{on=group}` or block `:::revealed{on=group}`. Read [reading-and-reveal.md](reading-and-reveal.md#reveal--revealed-one-way-reveal): label/content semantics change with `show`, hidden questions still score, and print expands the content.
+
 ### styleBlock
+
+Default card form: `:::styleBlock{class="card"}`. Do not rebuild the system card CSS with inline variables. `class="first second"` supports multiple space-separated classes without dots; inline styles remain explicit overrides. For reusable custom styling, scope a page-local `<style>` to a distinctive class and include it on every page that needs it. Cloud Studio retains the stylesheet as source; check applied CSS in the course preview. Runtime, HTML builds, and Print preserve classes, but Print sanitizes styles: do not rely on web theme selectors, exact DOM-child selectors, imports, font-face, animation, or fixed/clipped whole-page containers.
+
+
 
 Canonical block:
 
@@ -988,25 +1118,27 @@ Notes:
 Theme-aware example:
 
 ```md
-:::styleBlock{background=var(--card-bg) border-color=var(--card-border) box-shadow=var(--card-shadow) border-radius=var(--card-radius) padding=var(--card-padding)}
+:::styleBlock{class="card"}
 This box adapts across themes.
 :::
 ```
 
 Suggested authoring mappings:
 
-- neutral content box -> `var(--card-bg)` + `var(--card-border)` + `var(--card-shadow)`
-- term popup / glossary body -> card tokens, with optional `var(--accent-1)` on the key term
+- neutral content box -> `styleBlock{class="card"}`
+- term popup / glossary body -> `styleBlock{class="card"}`, with optional `var(--accent-1)` on the key term
 - reading tip / reminder -> `var(--quote-bg)` + `var(--quote-text)`
 - popup or collapse trigger -> `--button-*` tokens first, then `--choice-option-*` if it behaves more like a chip
 - inline emphasis -> `var(--accent-1)` or `var(--text-strong)` instead of literal highlight colors
-- sticky reminder body -> `var(--quote-bg)` / `var(--quote-text)` first, card tokens second
+- sticky reminder body -> `var(--quote-bg)` / `var(--quote-text)` first, an inner `styleBlock{class="card"}` when a card is needed
 
 Source of truth:
 
 - `D:\Projects\welearn-ninja\packages\mdx-semantics\src\style-semantics.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\components\styleProps.ts`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleBlock.ts`
+
+For explicitly requested WenKai text, use `font-family="LXGW WenKai"` on `styleText`, `styleLine`, or `styleBlock`. The bundled regular font is supported in `build:html`; do not promise PDF font support. Prefer `styleText` for precise spans because nested headings/components may override inherited fonts. Example: `:styleText[“示例文字”]{font-family="LXGW WenKai"}`.
 
 ### styleText
 
@@ -1180,17 +1312,21 @@ Notes:
 
 - Style attributes on inline `pop` apply to the trigger.
 - `ref`/`def` are internal lookup attributes.
-- Duplicate `def` ids are allowed but later definitions win.
+- The runtime allows duplicate `def` ids and lets later definitions win, but generated lesson pages must keep ids unique.
 - Missing `ref` falls back to inline `markdown` or `source`.
 - Do not nest `pop` inside another `pop` label.
+- Do not enclose an inline `pop` in Markdown emphasis or strikethrough delimiters (`*`, `_`, `**`, `__`, `***`, `___`, or `~~`). When surrounding source formatting must remain, use `<b>`, `<i>`, and/or `<del>` around the complete span instead.
 - In authored lesson pages, `pop` is best treated as an inline annotation tool: use it for footnotes, endnotes, vocabulary notes, and term explanations that belong to the reading flow.
 - Prefer `ref/def` when the annotation content comes from source notes or glossary material, so the inline trigger and note body stay separate.
 - Keep `def` blocks outside interactive question blocks; use inline `ref` markers inside the prose where the explained term actually appears.
 - Recommended mapping workflow:
   - collect note sources first
   - normalize each note into `term/phrase + note body + likely anchor`
-  - anchor only when the inline match is credible
-  - otherwise keep the material as a glossary or note list instead of forcing `pop`
+  - preserve every source note as a reachable Pop definition or a visible glossary/notes entry
+  - search case-insensitively first, then try punctuation-normalized, inflectional, derivational, multiword, shortened-name, acronym, and alias variants for a credible anchor
+  - treat capitalization-only differences as direct matches, preserve the passage's casing in the visible trigger, and preserve the note headword's casing in the definition
+  - if no credible anchor exists, never invent a ref; in hosted / Cloud Studio mode keep the entry in an ordinary glossary/notes representation and emit an `authoring` ProductionIssue, in local mode also keep the ordinary entry visible and report the missing anchor separately
+  - remove only glossary/note entries successfully replaced by reachable Pop definitions; hosted unanchored entries remain once as ordinary source-faithful content
 
 Authoring examples:
 
@@ -1231,7 +1367,7 @@ Glossary
 Passage does not contain the word.
 
 Preferred handling:
-keep it as a normal glossary list; do not force an inline `pop`.
+in hosted / Cloud Studio mode, keep the ordinary glossary entry and emit an `authoring` ProductionIssue; do not create an unreachable Pop definition or `TODO.txt`. In local file mode, also keep the ordinary glossary entry visible and report the missing anchor separately. Do not remove source content into an unreachable definition.
 ```
 
 Source of truth:
@@ -1266,7 +1402,7 @@ Notes:
 
 - Display-only. No scoring or SCORM writing.
 - Sticky positioning comes from `sticky`; visual styling normally belongs in nested content such as `styleBlock`.
-- Prefer note-like tokens such as `var(--quote-bg)` / `var(--quote-text)` or card tokens such as `var(--card-bg)` / `var(--card-border)` for the inner styled content.
+- Prefer note-like tokens such as `var(--quote-bg)` / `var(--quote-text)` or an inner `styleBlock{class="card"}` for a card.
 - Best use case: a short reference block that learners must repeatedly glance at, such as a word bank, prompt checklist, compact formula list, or reminder.
 - Use it to reduce repeated scrolling, not as a generic highlight effect.
 
@@ -1275,6 +1411,8 @@ Source of truth:
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStickyBlock.ts`
 
 ### wide
+
+Wide content inherits the course font size (`--mdx-font-size`) in the current runtime. Do not add a fixed font size to compensate for historical behavior.
 
 Canonical block:
 
@@ -1619,6 +1757,41 @@ Source of truth:
 - `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
 - `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkExportContentBlock.ts`
 
+### knowledgeGraph
+
+Use the exact case-sensitive name `knowledgeGraph`, with exactly one fenced `json` block and no other body content. Use strict JSON, without comments or trailing commas.
+
+````mdx
+:::knowledgeGraph{layout="dagre" direction="LR" height=460 density="auto"}
+```json
+{
+  "nodes": [
+    { "id": "topic", "label": "Topic" },
+    { "id": "concept", "label": "Concept" }
+  ],
+  "edges": [
+    { "source": "topic", "target": "concept", "relation": "contains" }
+  ]
+}
+```
+:::
+````
+
+- Only five directive attributes: `layout` (`dagre`, `force`, `radial`, `circular`), `direction` (`LR`, `RL`, `TB`, `BT`, only meaningful for dagre), `height` (finite positive CSS-pixel number, no `px` suffix), optional visible `title`, and `density` (`auto`, `compact`, `normal`, `comfortable`). Graph title is separate from frontmatter title.
+- Top-level JSON: required nonempty `nodes`; optional `edges` and `categories` arrays. No other fields, `version`, `src`, external JSON, or JavaScript objects.
+- Nodes: required unique nonempty `id` and `label`; optional `description`, `lesson`, `category`.
+- Categories: required unique `id` and `label`. A node category must reference a declared category.
+- Edges: required `source`, `target`, `relation`; optional `label`. Endpoints must exist and differ. Relations are only `contains`, `prerequisite`, `related`.
+- Each node has at most one contains parent. Contains, prerequisite, and their combined directed graph must all be acyclic. Related cycles are allowed. Do not create duplicate relations.
+- `lesson` must match a trusted course page inventory exactly: case-sensitive, relative to `pages/`, `/` separators, `.mdx` extension, no leading slash, `./`, `../`, query/hash, scheme, or `scoid`. Pages with `issco: false` are allowed. If no inventory is supplied, omit optional lesson links; ask only if navigation is required.
+- Use longer outer directive fences when nesting, and an outer response code fence longer than the embedded JSON fence. Do not let nested fences truncate the complete MDX candidate.
+- Do not invent author parameters for colors, theme, toolbar, node shapes, fullscreen mode, or learner layout switching. Print/PDF produces static content, not Canvas interactions. The detailed reference is [classification-and-knowledge-graph.md](classification-and-knowledge-graph.md).
+- Check strict JSON, allowed fields/values, unique identifiers, references, exact lesson paths, and cycles before returning. Host runtime validation remains authoritative; the bundled recurring-output script does not implement the graph schema.
+
+### HTML App
+
+For explicitly requested runnable custom mini-interactions, read `html-apps.md`. Use an exact lowercase `html app` fence at page-body level. Ordinary `html` fences remain code displays. This is not a formal/scored exercise or a replacement for native components.
+
 ### retired chatwithai
 
 `chatwithai` is retired in the current project.
@@ -1634,9 +1807,8 @@ Do not generate new `chatwithai` page content.
 ## Generation advice
 
 - For regular handouts, plain markdown + `choice` / `fillblank` / `matching` / `sorting` / `translate` / `writing` is usually enough.
-- Use `scorm=false` only for clearly optional practice.
+- Use `weight=0` for non-scoring questions; use `scorm=false` only for explicitly untracked practice.
 - Use `showAfterSubmit` when follow-up content should unlock only after the formal tracked task is finished.
 - Do not introduce `game-matching`, `game-memorymatch`, `game-choice`, `game-tokenbuilding`, `discussion`, `debate`, `recorder`, upload blocks, `splitpane`, `columns`, `carousel`, `iframe`, `media`, `askAI`, `aiexercise`, or `exportcontent` unless the source or user explicitly asks for them.
 - Do not generate retired `chatwithai` content.
 - If a display block only adds decoration and not clarity, skip it.
-

@@ -1,0 +1,7 @@
+interface:
+  display_name: "MDX SCORM Course Authoring"
+  short_description: "Author source-faithful MDX course pages and units"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+policy:
+  allow_implicit_invocation: true
