@@ -79,7 +79,7 @@ Choose `knowledgeGraph` only for an explicit concept graph whose nodes, relation
 - Layouts are `dagre`, `force`, `radial`, and `circular`. Directions are `LR`, `RL`, `TB`, and `BT`, and only affect `dagre`; specifying one for another layout produces a warning.
 - `height` is a finite positive number in CSS pixels (not `460px`); values below `320` warn about readability. Density is `auto`, `compact`, `normal`, or `comfortable`. `title=""` hides the visible title but retains an accessible name.
 
-The historical course example at `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\00_course_info\01_course_info.mdx` may be unavailable in a target checkout. Use the caller's actual page inventory; do not assume that historical file or its lesson paths still exist.
+The historical course example at `mdx-scorm-pages/pages/00_course_info/01_course_info.mdx` may be unavailable in a target checkout. Use the caller's actual page inventory; do not assume that historical file or its lesson paths still exist.
 
 Start with a minimal graph and add only source-supported data:
 

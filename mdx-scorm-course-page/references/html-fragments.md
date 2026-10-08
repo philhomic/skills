@@ -18,7 +18,7 @@ Use only when the user explicitly asks for static course HTML code. By default r
 
 ## Verified theme variables
 
-Maintenance source: mdx-scorm `src/styles/global/01-foundation.css` and `02-markdown-content.css`, inspected 2026-09-07. These names are bundled for cloud use; repository access is not required.
+Maintenance source: mdx-scorm `src/styles/global/01-foundation.css` and `02-markdown-content.css`, inspected 2026-09-07. These names are included for local authoring; repository access is not required to read this reference.
 
 | Purpose | Existing variables | CSS usage |
 | --- | --- | --- |

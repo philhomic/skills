@@ -2,7 +2,7 @@
 
 For a CSS-only request, return one complete `css` code block without MDX, HTML, or `<style>` tags. Treat this as an appearance task: preserve the runtime layout instead of generating layout resets or repair overrides.
 
-Use supplied verified DOM selectors, the requested preset, and explicit additional requirements; do not invent classes or require content changes. Additional user requirements take precedence over a generic preset. A CSS block is copyable stylesheet code, not a full MDX candidate. Only explicitly configured hosted generate/repair calls require a complete MDX envelope. Do not append explanations or create a file unless the user requested that delivery form.
+Use supplied verified DOM selectors, the requested preset, and explicit additional requirements; do not invent classes or require content changes. Additional user requirements take precedence over a generic preset. A CSS block is copyable stylesheet code, not a full MDX candidate. Do not append explanations or create a file unless the user requested that delivery form.
 
 Keep supplied mandatory layout rules intact when they are part of the user's explicit stylesheet contract; do not counteract them with other rules. Encoded SVG decoration must not replace component icons or intercept clicks. Omit empty placeholder rules. Ordinary appearance requests follow the geometry-preservation constraints below.
 

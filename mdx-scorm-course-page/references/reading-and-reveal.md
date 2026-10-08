@@ -1,6 +1,6 @@
 # Reading, reveal, and per-blank weights
 
-Audited against local engine commit `b8b080d4` on 2026-10-08. This reference supports local course authoring. Use the requested local destination and report actual checks under SKILL.md; no hosted response envelope is required. Repository paths below locate the implementation used for this audit. A skill update does not deploy engine, Studio or Print services.
+Audited against local engine commit `b8b080d4` on 2026-10-08. This reference supports local course authoring. Use the requested local destination and report actual checks under SKILL.md. Repository paths below locate the implementation used for this audit. A skill update does not deploy engine, Studio or Print services.
 
 ## Choose by learner action
 

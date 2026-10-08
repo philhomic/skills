@@ -6,9 +6,9 @@ Use this reference whenever the source is a Word document, the task provides a r
 
 Never place unresolved editorial issues, missing-source warnings, inferred repairs, or other TODO notes inside a generated `.mdx` page, including HTML comments.
 
-This rule concerns production annotations, not literal source text such as “to do”, “TODO”, or quoted examples. Preserve those source strings. “Hosted mode” below means the explicitly configured protocol in hosted-protocol.md, not every chat session.
+This rule concerns production annotations, not literal source text such as “to do”, “TODO”, or quoted examples. Preserve those source strings.
 
-In hosted / Cloud Studio mode, never create or propose `TODO.txt`. Preserve a usable source-faithful MDX representation and expose unresolved non-blocking observations through ProductionIssue output. Ask one focused question before generation only when a missing fact, scored answer, or exercise mode is genuinely required.
+Preserve a usable source-faithful MDX representation and report unresolved non-blocking observations separately. Ask one focused question before generation only when a missing fact, scored answer, or exercise mode is genuinely required.
 
 For an explicit filesystem batch, use a sibling issue file when needed for handoff (ordinary local chat can report issues directly):
 
@@ -65,16 +65,15 @@ Aim to give every definition at least one credible `ref`. When a term occurs rep
 
 If no credible anchor remains after the full search, do not invent a fake inline trigger.
 
-- In hosted / Cloud Studio mode, preserve that source entry in an ordinary glossary/notes representation and emit a non-blocking `authoring` ProductionIssue. Do not create an unreachable Pop definition and do not create `TODO.txt`.
 - In local file mode, keep the entry visible in an ordinary glossary/notes section and report the missing anchor separately (or in a sibling `TODO.txt` for a batch). Do not leave an unreachable definition and remove the visible source entry.
 
-After conversion, remove only the original entries that were successfully replaced by reachable Pop definitions. In hosted mode, keep unanchored entries once in the ordinary glossary/notes representation; do not duplicate them.
+After conversion, remove only the original entries that were successfully replaced by reachable Pop definitions. Keep unanchored entries once in the ordinary glossary/notes representation; do not duplicate them.
 
 Before finalizing, verify:
 
 - source annotation count equals reachable Pop definitions plus preserved unanchored glossary/notes entries
 - every `ref` has one matching `def`
-- every `def` has a credible `ref` in both hosted and local modes; unanchored notes remain visible without a fake trigger
+- every `def` has a credible `ref`; unanchored notes remain visible without a fake trigger
 - capitalization-only headword/anchor differences were matched and preserve their respective source casing
 - different source notes were not silently merged
 

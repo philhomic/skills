@@ -1,6 +1,6 @@
 # Text selection and correction authoring
 
-Self-contained contract for local authors and explicitly configured hosted agents. Rechecked against mdx-scorm repository commit `9c00bc4e` (User Manual 6.18–6.19 and shared text semantics; originating cloud reference audited `1001918c`). Repository paths are maintenance provenance, not required cloud dependencies. Runtime support must be deployed by the host; updating this skill alone does not deploy the engine.
+Self-contained contract for local authors. Rechecked against mdx-scorm repository commit `9c00bc4e` (User Manual 6.18–6.19 and shared text semantics; originating cloud reference audited `1001918c`). Repository paths locate maintenance evidence relative to the target repository root. Runtime support must be deployed by the host; updating this skill alone does not deploy the engine.
 
 ## Choose by learner action
 
@@ -109,7 +109,7 @@ I like this place.
 :::
 ```
 
-For open selection, completion requires at least one selected range. For open correction, the normalized final text must differ from the original; a whitespace-only change is insufficient. Open tasks may retain supplied reference targets, but do not auto-judge against them. If an ordinary scored task lacks its answer, follow hosted clarification/repair rules; do not fabricate an answer or silently make it open.
+For open selection, completion requires at least one selected range. For open correction, the normalized final text must differ from the original; a whitespace-only change is insufficient. Open tasks may retain supplied reference targets, but do not auto-judge against them. If an ordinary scored task lacks its answer, ask one focused question, or preserve unresolved material as ordinary text for an explicitly non-interactive batch; do not fabricate an answer or silently make it open.
 
 ## Limits and escaping
 
@@ -122,7 +122,7 @@ For open selection, completion requires at least one selected range. For open co
 
 ## Cloud Studio and delivery
 
-Local authors follow the destination/report rules in SKILL.md. Only explicitly configured hosted integration uses the candidate envelope in hosted-protocol.md; these types do not change that protocol. Generate canonical MDX, not editor JSON, DOM, CSS or runtime scoring code.
+Follow the destination/report rules in SKILL.md. Generate canonical MDX, not editor JSON, DOM, CSS or runtime scoring code.
 
 Cloud Studio has native rich prompt/explanation sections, a dedicated original-text/answer canvas and shared side-panel properties. Replacing the original via the canvas clears old markers. Unsupported source remains a complete source island instead of dropping content. Root native insertion is verified at page-body level; do not nest exercises inside another exercise or assume every display container supports them.
 
@@ -132,4 +132,4 @@ PDF student projections contain prompt and original text without reference answe
 
 ## Preflight
 
-Check the supported shape, attrs, answer source, literal original text, token boundaries and limits above. Run the existing convention checker when file-mode tools are available, but retain Cloud Studio's host syntax/semantic validation: the bundled Python checker does not implement the complete new-type grammar. Unsupported or incomplete content should follow the original hosted uncertainty rules, not be coerced into a valid-looking question.
+Check the supported shape, attrs, answer source, literal original text, token boundaries and limits above. Run the convention checker and use the target engine for syntax/semantic validation: the bundled Python checker does not implement the complete new-type grammar. Ask about required missing facts or answers; preserve unresolved material as ordinary text when an explicitly non-interactive batch must continue, rather than coercing it into a valid-looking question.

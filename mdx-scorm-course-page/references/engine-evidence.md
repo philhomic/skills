@@ -2,7 +2,13 @@
 
 Maintenance update: 2026-10-08, local `welearn-ninja` commit `b8b080d4`; selectively incorporates capability guidance from `mdx-scorm-course-page-updated-20261008.zip` while retaining local authoring behavior. Previous baseline: 2026-09-30, engine `9c00bc4e`, repository skill `7771917`. These are audit provenance, not a minimum-version claim. Recheck the actual target runtime when it differs. No engine deployment is performed by installing this skill.
 
-Paths below are relative to the `welearn-ninja` repository. The local maintenance checkout is `D:\Projects\welearn-ninja`; cloud callers do not need that filesystem.
+Paths below are relative to the target `welearn-ninja` repository root. Locate that checkout from the current workspace or caller-provided path; the installed Skill directory is not the engine checkout.
+
+## Compatibility check and local-only documentation update (2026-10-08)
+
+The imported Skill revision `e286238c3682130a6ba0d0d0b9aed74b2b71d6fb` was checked against engine `4436115471d33eadfb0561391f63dc9affbe8e0c`: Skill format validation and 25 convention-checker tests passed, and 78 extracted MDX examples parsed through the current Markdown runtime pipeline. Between `b8b080d4` and that engine revision, changes in mdx-scorm and the relevant shared semantics/book-export packages were test-only. These checks do not establish complete scoring, browser or PDF acceptance.
+
+The subsequent local-only documentation pass removes the cloud Agent protocol and its routing, preserves component examples and engine rules, and makes implementation paths independent of a particular computer. The earlier audit provenance remains above; no cloud skill or runtime was deployed by this documentation update.
 
 | Capability | Source of truth / useful check |
 | --- | --- |
@@ -31,11 +37,10 @@ Paths below are relative to the `welearn-ninja` repository. The local maintenanc
 | HTML App envelope / runtime | `packages/mdx-semantics/src/html-app.ts`, `mdx-scorm/src/htmlApp/runtime.ts`, `media.ts`; trusted author code, not a JavaScript sandbox |
 | Discussion/debate directive fields | `mdx-scorm/src/mdx/remarkDiscussionBlock.ts`; `[empty]`, presets and labels are directive features |
 
-## Keep three kinds of rules distinct
+## Keep engine constraints and authoring defaults distinct
 
 1. **Engine constraints:** marker grammar, allowed fields, valid references, scoring semantics, token/response limits.
 2. **Authoring defaults:** no redundant frontmatter, one answer per line, preferred translation/short-answer routes, card reuse, supported canonical spellings.
-3. **Integration protocols:** hosted chat/generate/review/repair envelopes and metadata, activated only by a trusted matching host.
 
 An authoring default must not be described as a parser prohibition. Valid old content and explicit user choices survive unrelated edits. Exact-match answer strings and text-edit originals are not typography targets.
 

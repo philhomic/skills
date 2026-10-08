@@ -4,8 +4,8 @@ This cookbook gives default authoring patterns for generated lesson pages.
 
 Use it after `syntax-inventory.md` when you need a concrete block shape. It is informed by:
 
-- `D:\Projects\welearn-ninja\mdx-scorm-pages`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm-pages`
+- `mdx-scorm/User Manual.md`
 - current `mdx-scorm` source transforms
 
 Rules:

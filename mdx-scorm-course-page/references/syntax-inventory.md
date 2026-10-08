@@ -1,6 +1,6 @@
 # mdx-scorm syntax inventory
 
-This file is a source-audited syntax reference for `D:\Projects\welearn-ninja\mdx-scorm`.
+This file is a source-audited syntax reference for `mdx-scorm`.
 
 Use it when generating authored lesson pages. Prefer the canonical ASCII syntax shown here, even though the runtime also supports aliases and normalization.
 
@@ -85,8 +85,8 @@ Current parser and page-control notes:
 
 Reference files:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\frontmatter写法规范.md`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/frontmatter写法规范.md`
+- `mdx-scorm/User Manual.md`
 
 `scoreCardShowWeights` controls weight-number visibility only. Resolution: explicit page frontmatter → nearest configured group → unit → course → default true. Course syntax is `Catalog { org.scorecardshowweights=false }`; unit/group use `scoreCardShowWeights=false`. Omission restores inheritance; do not add redundant page overrides. Catalog `(mdx)` entries are not an override layer.
 
@@ -203,8 +203,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `mdx-scorm/src/mdx/remarkChoiceBlock.ts`
+- `mdx-scorm/Developer Manual.md`
 
 ### fillblank
 
@@ -264,8 +264,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkFillBlankBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `mdx-scorm/src/mdx/remarkFillBlankBlock.ts`
+- `mdx-scorm/Developer Manual.md`
 
 For requested per-blank non-AI scoring, `interactionWeights="1,1,3"` supplies final weights in actual blank order, including embedded answers. It overrides `weight`, `weightDistribution` and page type weights. Supply one finite nonnegative number per blank; do not combine with `aiScore=true`. Invalid configuration blocks normal submission. See [reading-and-reveal.md](reading-and-reveal.md#fillblank-final-per-blank-weights).
 
@@ -325,8 +325,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkChoiceClozeBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `mdx-scorm/src/mdx/remarkChoiceClozeBlock.ts`
+- `mdx-scorm/Developer Manual.md`
 
 ### matching
 
@@ -376,8 +376,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkMatchingBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `mdx-scorm/src/mdx/remarkMatchingBlock.ts`
+- `mdx-scorm/Developer Manual.md`
 
 ### game-matching
 
@@ -422,10 +422,10 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameMatchingBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameMatchingBlock.tsx`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
-- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\01_game_matching.mdx`
+- `mdx-scorm/src/mdx/remarkGameMatchingBlock.ts`
+- `mdx-scorm/src/components/GameMatchingBlock.tsx`
+- `mdx-scorm/User Manual.md`
+- `mdx-scorm-pages/pages/01_interactive_powers/02_gamelike_interactions/01_game_matching.mdx`
 
 ### game-memorymatch
 
@@ -469,9 +469,9 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameMemoryMatchBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameMemoryMatchBlock.tsx`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/src/mdx/remarkGameMemoryMatchBlock.ts`
+- `mdx-scorm/src/components/GameMemoryMatchBlock.tsx`
+- `mdx-scorm/User Manual.md`
 
 ### game-choice
 
@@ -548,10 +548,10 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameChoiceBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameChoiceBlock.tsx`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
-- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\03_game_choice.mdx`
+- `mdx-scorm/src/mdx/remarkGameChoiceBlock.ts`
+- `mdx-scorm/src/components/GameChoiceBlock.tsx`
+- `mdx-scorm/User Manual.md`
+- `mdx-scorm-pages/pages/01_interactive_powers/02_gamelike_interactions/03_game_choice.mdx`
 
 ### game-tokenbuilding
 
@@ -622,10 +622,10 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkGameTokenBuildingBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\GameTokenBuildingBlock.tsx`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
-- `D:\Projects\welearn-ninja\mdx-scorm-pages\pages\01_interactive_powers\02_gamelike_interactions\02_game_tokenbuilding.mdx`
+- `mdx-scorm/src/mdx/remarkGameTokenBuildingBlock.ts`
+- `mdx-scorm/src/components/GameTokenBuildingBlock.tsx`
+- `mdx-scorm/User Manual.md`
+- `mdx-scorm-pages/pages/01_interactive_powers/02_gamelike_interactions/02_game_tokenbuilding.mdx`
 
 ### classification
 
@@ -710,8 +710,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkSortingBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\SortingBlock.tsx`
+- `mdx-scorm/src/mdx/remarkSortingBlock.ts`
+- `mdx-scorm/src/components/SortingBlock.tsx`
 
 ### textselect / textedit
 
@@ -795,8 +795,8 @@ instruction: 这是一道句子英译中的题目。请重点评价翻译质量�
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkTranslateBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\TranslateBlock.tsx`
+- `mdx-scorm/src/mdx/remarkTranslateBlock.ts`
+- `mdx-scorm/src/components/TranslateBlock.tsx`
 
 For `translate` with `open=true`, a configured `[ai]` section can provide AI feedback without displaying a score; completion remains based on nonempty input. Do not add AI configuration without source/user intent.
 
@@ -847,8 +847,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkWritingBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\WritingBlock.tsx`
+- `mdx-scorm/src/mdx/remarkWritingBlock.ts`
+- `mdx-scorm/src/components/WritingBlock.tsx`
 
 ### discussion / debate
 
@@ -907,8 +907,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\pages\01_showpowers\11.8_Discussion_demos.mdx`
+- `mdx-scorm/User Manual.md`
+- `mdx-scorm/src/pages/01_showpowers/11.8_Discussion_demos.mdx`
 
 ### recorder
 
@@ -968,8 +968,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkRecorderBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\Developer Manual.md`
+- `mdx-scorm/src/mdx/remarkRecorderBlock.ts`
+- `mdx-scorm/Developer Manual.md`
 
 ### imageupload
 
@@ -1008,7 +1008,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkImageUploadBlock.ts`
+- `mdx-scorm/src/mdx/remarkImageUploadBlock.ts`
 
 ### videoupload
 
@@ -1047,7 +1047,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkVideoUploadBlock.ts`
+- `mdx-scorm/src/mdx/remarkVideoUploadBlock.ts`
 
 ## Display blocks and helpers
 
@@ -1110,7 +1110,7 @@ Notes:
 
 - Numeric values are treated as `px` for supported properties.
 - CSS functions like `var(...)`, `calc(...)`, `clamp(...)`, `min(...)`, and `max(...)` are supported.
-- Prefer theme tokens from `D:\Projects\welearn-ninja\mdx-scorm\src\global.css` and `D:\Projects\welearn-ninja\mdx-scorm\src\themes\*.css` when styling authored content.
+- Prefer theme tokens from `mdx-scorm/src/global.css` and `mdx-scorm/src/themes/*.css` when styling authored content.
 - Prefer semantic tokens such as `var(--card-bg)`, `var(--card-border)`, `var(--card-shadow)`, `var(--text-strong)`, `var(--text-muted)`, `var(--quote-bg)`, `var(--quote-text)`, `var(--accent-1)`, and `var(--surface-1)` over hard-coded colors.
 - `styleText` and `styleLine` use the same style whitelist and the same variable/expression support.
 - Authoring preference order: semantic component token -> shared text/surface/accent token -> literal CSS value.
@@ -1134,9 +1134,9 @@ Suggested authoring mappings:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\packages\mdx-semantics\src\style-semantics.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\styleProps.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleBlock.ts`
+- `packages/mdx-semantics/src/style-semantics.ts`
+- `mdx-scorm/src/components/styleProps.ts`
+- `mdx-scorm/src/mdx/remarkStyleBlock.ts`
 
 For explicitly requested WenKai text, use `font-family="LXGW WenKai"` on `styleText`, `styleLine`, or `styleBlock`. The bundled regular font is supported in `build:html`; do not promise PDF font support. Prefer `styleText` for precise spans because nested headings/components may override inherited fonts. Example: `:styleText[“示例文字”]{font-family="LXGW WenKai"}`.
 
@@ -1160,8 +1160,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/src/mdx/remarkStyleInline.ts`
+- `mdx-scorm/User Manual.md`
 
 ### styleLine
 
@@ -1195,8 +1195,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStyleInline.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\utils\mdxUtils.ts`
+- `mdx-scorm/src/mdx/remarkStyleInline.ts`
+- `mdx-scorm/src/utils/mdxUtils.ts`
 
 ### play
 
@@ -1217,7 +1217,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\markdown\remarkInlineAudio.ts`
+- `mdx-scorm/src/markdown/remarkInlineAudio.ts`
 
 ### askAI
 
@@ -1258,8 +1258,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkAskAI.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\AskAI.tsx`
+- `mdx-scorm/src/mdx/remarkAskAI.ts`
+- `mdx-scorm/src/components/AskAI.tsx`
 
 ### collapse
 
@@ -1291,8 +1291,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkCollapseBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/src/mdx/remarkCollapseBlock.ts`
+- `mdx-scorm/User Manual.md`
 
 ### pop
 
@@ -1325,8 +1325,8 @@ Notes:
   - preserve every source note as a reachable Pop definition or a visible glossary/notes entry
   - search case-insensitively first, then try punctuation-normalized, inflectional, derivational, multiword, shortened-name, acronym, and alias variants for a credible anchor
   - treat capitalization-only differences as direct matches, preserve the passage's casing in the visible trigger, and preserve the note headword's casing in the definition
-  - if no credible anchor exists, never invent a ref; in hosted / Cloud Studio mode keep the entry in an ordinary glossary/notes representation and emit an `authoring` ProductionIssue, in local mode also keep the ordinary entry visible and report the missing anchor separately
-  - remove only glossary/note entries successfully replaced by reachable Pop definitions; hosted unanchored entries remain once as ordinary source-faithful content
+  - if no credible anchor exists, never invent a ref; keep the ordinary glossary/notes entry visible and report the missing anchor separately
+  - remove only glossary/note entries successfully replaced by reachable Pop definitions; unanchored entries remain once as ordinary source-faithful content
 
 Authoring examples:
 
@@ -1367,13 +1367,13 @@ Glossary
 Passage does not contain the word.
 
 Preferred handling:
-in hosted / Cloud Studio mode, keep the ordinary glossary entry and emit an `authoring` ProductionIssue; do not create an unreachable Pop definition or `TODO.txt`. In local file mode, also keep the ordinary glossary entry visible and report the missing anchor separately. Do not remove source content into an unreachable definition.
+keep the ordinary glossary entry visible and report the missing anchor separately; do not create an unreachable Pop definition. Do not remove source content into an unreachable definition.
 ```
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkPop.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\markdown\remarkDisplayDirectives.ts`
+- `mdx-scorm/src/mdx/remarkPop.ts`
+- `mdx-scorm/src/markdown/remarkDisplayDirectives.ts`
 
 ### sticky
 
@@ -1408,7 +1408,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkStickyBlock.ts`
+- `mdx-scorm/src/mdx/remarkStickyBlock.ts`
 
 ### wide
 
@@ -1441,7 +1441,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/User Manual.md`
 
 ### splitpane
 
@@ -1482,7 +1482,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkSplitPaneBlock.ts`
+- `mdx-scorm/src/mdx/remarkSplitPaneBlock.ts`
 
 Authoring comparison:
 
@@ -1525,7 +1525,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkColumnsBlock.ts`
+- `mdx-scorm/src/mdx/remarkColumnsBlock.ts`
 
 ### carousel
 
@@ -1568,7 +1568,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkCarouselBlock.ts`
+- `mdx-scorm/src/mdx/remarkCarouselBlock.ts`
 
 ### iframe
 
@@ -1607,7 +1607,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkIframeBlock.ts`
+- `mdx-scorm/src/mdx/remarkIframeBlock.ts`
 
 ### media
 
@@ -1647,8 +1647,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkMediaBlock.ts`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\components\MediaBlock.tsx`
+- `mdx-scorm/src/mdx/remarkMediaBlock.ts`
+- `mdx-scorm/src/components/MediaBlock.tsx`
 
 ### showAfterSubmit
 
@@ -1674,7 +1674,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/User Manual.md`
 
 ### aiexercise
 
@@ -1722,7 +1722,7 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
+- `mdx-scorm/User Manual.md`
 
 ### exportcontent
 
@@ -1754,8 +1754,8 @@ Notes:
 
 Source of truth:
 
-- `D:\Projects\welearn-ninja\mdx-scorm\User Manual.md`
-- `D:\Projects\welearn-ninja\mdx-scorm\src\mdx\remarkExportContentBlock.ts`
+- `mdx-scorm/User Manual.md`
+- `mdx-scorm/src/mdx/remarkExportContentBlock.ts`
 
 ### knowledgeGraph
 

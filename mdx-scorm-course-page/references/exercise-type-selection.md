@@ -125,7 +125,7 @@ Use these thresholds:
 
 - **High confidence:** directions, items, and answers agree. Select the semantically correct directive without asking.
 - **Medium confidence:** labels and answer topology conflict, or two directives would create materially different learner actions. Ask the author before generating that exercise when practical.
-- **Low confidence:** directions, options, or answers are incomplete enough that the intended action cannot be recovered. Ask the author. If a hosted workflow must continue and the ambiguity is not required for factual or scoring correctness, keep the exercise as plain Markdown and expose an `authoring` ProductionIssue; only explicit filesystem-writing mode may record the issue in sibling `TODO.txt`.
+- **Low confidence:** directions, options, or answers are incomplete enough that the intended action cannot be recovered. Ask the author. For an explicitly non-interactive batch, keep unresolved exercises as plain Markdown and report the issue separately; a filesystem batch may record it in a sibling `TODO.txt`.
 
 Do not ask merely because the target differs from the reference. Ask because the target itself remains ambiguous.
 

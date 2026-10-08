@@ -245,7 +245,7 @@ Treat `pop` as the default annotation mechanism for Word footnotes/endnotes and 
 - Preserve surrounding emphasis without wrapping `:pop[...]` in Markdown delimiters. If the source or reference applies bold, italic, strikethrough, or a combination across text that contains the trigger, wrap the complete formatted span with `<b>`, `<i>`, and/or `<del>` in canonical nesting order; keep Markdown emphasis for spans that do not contain `pop`.
 - Require credible word or phrase boundaries after case normalization; do not accept an unrelated substring merely because its folded casing matches.
 - Remove only entries successfully replaced by reachable Pop definitions; preserve unanchored entries in the visible note/glossary list.
-- If no credible anchor exists, do not invent a ref. In hosted / Cloud Studio mode, preserve the source entry in its ordinary glossary/notes form and expose one non-blocking `authoring` ProductionIssue; do not create an unreachable Pop definition and do not create `TODO.txt`. In local file mode, also preserve the entry visibly and report the missing anchor separately; do not leave an unreachable definition.
+- If no credible anchor exists, do not invent a ref. Preserve the entry visibly in its ordinary glossary/notes form and report the missing anchor separately; do not leave an unreachable definition.
 - Follow the corresponding reference page's Pop body style. For the supplied Unit 1 pattern, use a bold headword, an italic unparenthesized part-of-speech label, and Markdown list items for collocations/examples.
 
 Read and follow [source-fidelity-and-reference-style.md](source-fidelity-and-reference-style.md) for the complete matching order, reference-style rules, and count checks.
