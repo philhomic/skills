@@ -22,6 +22,7 @@ Turn supplied teaching material into complete course content using the target en
 | MDX page or component | Relevant sections of [syntax-inventory.md](references/syntax-inventory.md); [component-authoring-cookbook.md](references/component-authoring-cookbook.md) for concrete patterns |
 | Exercise conversion or reference conflict | [exercise-type-selection.md](references/exercise-type-selection.md) |
 | Synchronized reading, click-to-reveal, per-blank weights | [reading-and-reveal.md](references/reading-and-reveal.md) |
+| Paged word, sentence, or passage recording practice | [recorder-group.md](references/recorder-group.md) |
 | Text selection/correction | [text-exercises.md](references/text-exercises.md) before writing any answer markers |
 | Classification or concept graph | [classification-and-knowledge-graph.md](references/classification-and-knowledge-graph.md) |
 | Word, annotations, strict preservation, reference styles | [source-fidelity-and-reference-style.md](references/source-fidelity-and-reference-style.md) |
