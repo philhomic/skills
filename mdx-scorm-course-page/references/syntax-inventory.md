@@ -381,6 +381,8 @@ Source of truth:
 
 ### game-matching
 
+All four games support optional `limit` and `shuffleQuestions`; tokenbuilding also supports item `answerDisplay`. Read [game-rounds.md](game-rounds.md) for defaults, redo/restoration, escaped MDX item attributes, Studio, and print behavior.
+
 Canonical block:
 
 ```md
@@ -578,7 +580,7 @@ Multi-item block:
 
 ```md
 :::game-tokenbuilding{space="ignore" shuffle=true}
-[item]{space="strict" shuffle=false}
+[item]\{space="strict" shuffle=false\}
 [prompt]
 Build the phrase.
 
@@ -617,7 +619,7 @@ Notes:
 - Use for spelling, word-building, phrase-building, or sentence-building practice.
 - `[answer]` is required; `[tiles]` is optional and falls back to answer tokens when omitted.
 - `[answer]` and `[tiles]` split tokens by whitespace. Include punctuation as its own token when students must select it.
-- `space` and `shuffle` may be set on the whole block or on an individual `[item]{...}`; item-level values override block-level values.
+- `space` and `shuffle` may be set on the whole block or on an individual `[item]\{...\}`; item-level values override block-level values. Escape item attribute braces in authored MDX; block attribute braces stay unescaped.
 - `space="ignore"` compares the joined answer after whitespace removal; `space="strict"` compares the token sequence.
 
 Source of truth:

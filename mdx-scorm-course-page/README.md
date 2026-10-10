@@ -12,6 +12,7 @@ Start with [SKILL.md](SKILL.md). It routes to the following references as needed
 - [Source fidelity](references/source-fidelity-and-reference-style.md): Word paragraphs/hierarchy, answer preservation, reachable annotations, and reference presentation.
 - [Authoring heuristics](references/authoring-heuristics.md), [CSS themes](references/stylesheet-authoring.md), [static HTML](references/html-fragments.md), and [HTML Apps](references/html-apps.md).
 - [Engine evidence](references/engine-evidence.md): source locations and the difference between implementation constraints, authoring defaults, and host integration.
+- [Game rounds](references/game-rounds.md): question limits, random order, completed answer text, static export, and card mode boundaries.
 
 The [page template](assets/course-page-template.mdx) is optional. New pages do not acquire default frontmatter, title, feedback, numbering, or input rows. Preserve intentional existing configuration when editing. Missing answers never authorize fabricated scoring or an implicit open mode. Unanchored source notes remain visible.
 
