@@ -247,6 +247,7 @@ Key attributes:
 Token rules:
 
 - `@--@` consumes the next answer from `[answer]`
+- With a non-empty prompt and exactly one standalone `@--@` line, the entire `[answer]` section instead forms one complete reference, retaining its lines and paragraphs (ordinary and AI questions).
 - `@answer@` embeds an inline answer
 - `@a|b@` allows multiple correct answers
 - `\@` escapes a literal `@`
@@ -254,7 +255,9 @@ Token rules:
 
 Notes:
 
-- If `[answer]` has one non-empty line, it may use `,` `，` `;` `；` `、` separators.
+- For multiple blanks with one non-empty `[answer]` line, legacy `,` `，` `;` `；` `、` separators may allocate answers; do not split a standalone question reference this way.
+- Ordinary standalone questions compare the complete reference with consecutive whitespace/newlines normalized only for comparison; display, saved text and submission preserve the original. Use `|` for ordinary acceptable alternatives, not paragraph breaks. AI references retain all paragraphs as one answer. Teacher print includes the complete reference; student print excludes it, and neither treats AI instructions or templates as reference text.
+- `placeholder="First line\nSecond line"` supplies a plain-text hint for the single standalone ordinary/AI question only. Literal `\n` creates a line break; `<br/>` is not parsed. Omission preserves the default and `placeholder=""` suppresses it. A non-empty answer or template hides the hint; it does not affect scoring. Configure it in source: Studio preserves it through visual edits but has no dedicated inspector field.
 - Open mode treats any non-empty input as correct.
 - Ordinary FillBlank answer comparisons normalize straight/curly single and double quotation marks; preserve curly visible prose and do not claim this behavior for every interaction.
 - `rows` now accepts a positive integer for standalone FillBlank textareas, including AI FillBlank; the runtime default is 2. It does not resize inline blanks. Omit it unless the user explicitly requests rows or input height.

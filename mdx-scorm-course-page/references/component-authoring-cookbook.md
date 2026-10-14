@@ -120,6 +120,26 @@ instruction: Evaluate the response against the supplied question and reference a
 
 
 
+For a question with a prompt and exactly one standalone `@--@`, preserve all supplied reference paragraphs inside one `[answer]` section. Do not keep only the first paragraph or turn paragraph breaks into alternative answers. Ordinary questions compare the whole answer with whitespace normalization; `|` remains the ordinary alternative separator. AI scoring uses the complete reference. This does not change multi-blank answer allocation.
+
+Optional multiline hint (keep supplied wording; the following labels stand for source content):
+
+```mdx
+:::fillblank{placeholder="Write your answer.\nInclude both points."}
+[content]
+Question from the source.
+
+@--@
+
+[answer]
+First supplied reference paragraph.
+
+Second supplied reference paragraph.
+:::
+```
+
+The hint is plain text, not HTML or initial learner text. Omit it to keep the default; use `placeholder=""` to hide it. A non-empty `[template]` hides the hint and supplies editable starting text instead. Studio preserves the source attribute but has no dedicated visual control. Teacher print keeps the full answer, while student print omits it. Do not include AI instructions or templates in reference answers.
+
 Inline blanks:
 
 ```mdx
