@@ -262,6 +262,7 @@ Notes:
 - Ordinary FillBlank answer comparisons normalize straight/curly single and double quotation marks; preserve curly visible prose and do not claim this behavior for every interaction.
 - `rows` now accepts a positive integer for standalone FillBlank textareas, including AI FillBlank; the runtime default is 2. It does not resize inline blanks. Omit it unless the user explicitly requests rows or input height.
 - `aiScore=true` is mainly for one standalone short-answer blank; `[template]` may provide initial textarea scaffolding.
+- In runtimes containing `3ecdda6c` or later, AI short-answer scoring also receives the complete non-empty `[explanation]` as additional guidance, preserving Markdown and paragraphs. Keep supplied explanations and scoring criteria intact; do not invent them or replace `[answer]` / `[ai]` with them. Missing or blank explanations add no guidance. Ordinary grading and student/teacher export rules are unchanged. Updating this reference does not update deployed runtimes or installed Skills.
 - `share=true shareComments=true` only exposes the current shared-response UI for a single standalone short-answer blank.
 - `useManualMarking=true` is supported only for `aiScore=true` or a single standalone open blank.
 

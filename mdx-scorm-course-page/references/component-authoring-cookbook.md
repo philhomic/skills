@@ -115,8 +115,12 @@ Reference answer from the source.
 
 [ai]
 instruction: Evaluate the response against the supplied question and reference answer.
+
+[explanation]
+Supplied explanation and evaluation criteria, if present in the source.
 :::
 ```
+In runtimes containing `3ecdda6c` or later, a non-empty explanation also supplies AI scoring guidance. Preserve all supplied paragraphs; omit the section when the source provides no explanation or criteria. It remains learner-facing explanation content, so keep private grading instructions in `[ai]` instead. Runtime deployment and Skill installation are separate from this reference update.
 
 
 
