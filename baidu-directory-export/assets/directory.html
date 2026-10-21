@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title><style>
+:root{font-family:system-ui,'Microsoft YaHei',sans-serif;color:#243345;background:#f4f6f8}body{max-width:1200px;margin:32px auto;padding:0 20px}h1{font-size:28px;margin-bottom:8px}.muted{color:#657586;font-size:14px}.controls{display:flex;flex-wrap:wrap;gap:12px;padding:20px;background:white;border:1px solid #dce3eb;border-radius:12px;margin:24px 0 16px;align-items:end}label{display:flex;flex-direction:column;gap:6px;font-size:13px}label:first-child{flex:1;min-width:220px}input,select,button{font:inherit;padding:10px;border:1px solid #bac7d4;border-radius:6px;background:white;color:inherit}button{cursor:pointer}button:hover{background:#eaf1f7}input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #528bc7;outline-offset:2px}#tree{padding:16px;background:white;border:1px solid #dce3eb;border-radius:12px;overflow:auto}details{margin:4px 0}summary{cursor:pointer;padding:7px;border-radius:5px}summary:hover,.file:hover{background:#f0f5fa}.children{margin-left:22px;border-left:1px solid #e3e9ef;padding-left:10px}.file{padding:7px 10px;overflow-wrap:anywhere}.badge{font-size:11px;color:#637991;margin-left:10px}.empty{padding:35px;color:#657586}#status{margin:16px 0}footer{padding:20px 0;font-size:12px;color:#657586}@media(max-width:600px){body{margin:20px auto;padding:0 10px}.controls{padding:12px}h1{font-size:23px}.children{margin-left:10px;padding-left:5px}}
+</style></head><body><h1>__TITLE__</h1><div id="metadata" class="muted"></div>
+<div class="controls"><label>搜索名称或完整路径<input id="query" type="search" placeholder="例如：课程 讲义（空格分隔多个关键词）"></label>
+<label>显示类型<select id="type"><option value="all">全部文件和文件夹</option><option value="folders">仅文件夹</option></select></label>
+<label>同级排序<select id="sort"><option value="original">原始顺序</option><option value="asc">名称升序</option><option value="desc">名称降序</option></select></label>
+<button id="reset">重置</button><button id="expand">全部展开</button><button id="collapse">全部收起</button></div>
+<div id="status" role="status" aria-live="polite"></div><main id="tree" aria-label="资料目录"></main><footer>离线目录快照 · 搜索和筛选保留上级目录 · 排序仅改变本页显示 · 网盘原文件不受影响</footer>
+<script id="data" type="application/json">__DATA__</script><script>
+const {nodes, metadata} = JSON.parse(document.getElementById('data').textContent);
+document.getElementById('metadata').textContent = metadata;
+const query = document.getElementById('query');
+const type = document.getElementById('type');
+const sort = document.getElementById('sort');
+const tree = document.getElementById('tree');
+const collator = new Intl.Collator('zh-CN', {numeric:true,sensitivity:'base'});
+const children = new Map();
+for(const node of nodes){if(!children.has(node.parent))children.set(node.parent,[]);children.get(node.parent).push(node);}
+const extensions = [...new Set(nodes.filter(node=>!node.directory).map(node=>node.ext))].sort();
+for(const extension of extensions){const option=document.createElement('option');option.value='ext:'+extension;option.textContent=extension?extension.toUpperCase()+' 文件':'无扩展名文件';type.append(option);}
+const opened = new Set();
+let activeFilter = false;
+function render(){
+ const keywords=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+ activeFilter=keywords.length>0||type.value!=='all';
+ const matches=new Set(nodes.filter(node=>keywords.every(keyword=>node.path.toLocaleLowerCase().includes(keyword))&&(type.value==='all'||(type.value==='folders'?node.directory:!node.directory&&'ext:'+node.ext===type.value))).map(node=>node.id));
+ const visible=new Set(matches);
+ for(const id of matches){let parent=nodes[id].parent;while(parent!==null){visible.add(parent);parent=nodes[parent].parent;}}
+ function build(parent){const fragment=document.createDocumentFragment();const siblings=(children.get(parent)||[]).filter(node=>visible.has(node.id));
+ if(sort.value!=='original')siblings.sort((left,right)=>Number(right.directory)-Number(left.directory)||(sort.value==='desc'?-1:1)*collator.compare(left.name,right.name));
+ for(const node of siblings){const item=document.createElement(node.directory?'details':'div');item.dataset.id=node.id;item.title=node.path;
+ if(node.directory){item.open=activeFilter||opened.has(node.id);const summary=document.createElement('summary');summary.textContent=node.name;const badge=document.createElement('span');badge.className='badge';badge.textContent=matches.has(node.id)?'文件夹':'上级目录';summary.append(badge);item.append(summary);const group=document.createElement('div');group.className='children';group.append(build(node.id));item.append(group);item.addEventListener('toggle',()=>{if(!activeFilter){if(item.open)opened.add(node.id);else opened.delete(node.id);}});}
+ else{item.className='file';item.textContent=node.name;const badge=document.createElement('span');badge.className='badge';badge.textContent=node.ext.slice(1).toUpperCase()||'文件';item.append(badge);}fragment.append(item);}return fragment;}
+ tree.replaceChildren(build(null));if(!matches.size){const empty=document.createElement('div');empty.className='empty';empty.textContent='没有匹配结果，请修改关键词或文件类型。';tree.append(empty);}
+ const files=[...matches].filter(id=>!nodes[id].directory).length;
+ document.getElementById('status').textContent=`匹配 ${matches.size-files} 个文件夹、${files} 个文件 · 总计 ${nodes.length} 个条目`;
+}
+let timer;query.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(render,150);});type.addEventListener('change',render);sort.addEventListener('change',render);
+document.getElementById('reset').onclick=()=>{clearTimeout(timer);query.value='';type.value='all';sort.value='original';opened.clear();render();};
+for(const [id,value] of [['expand',true],['collapse',false]])document.getElementById(id).onclick=()=>{for(const detail of tree.querySelectorAll('details')){detail.open=value;if(value)opened.add(Number(detail.dataset.id));else opened.delete(Number(detail.dataset.id));}};
+render();
+</script></body></html>

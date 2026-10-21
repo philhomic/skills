@@ -6,6 +6,7 @@ This page is the quick index for the repository. Use it to see what each skill i
 
 | Skill | Status | Best for | Typical input | Typical output | Key files |
 | --- | --- | --- | --- | --- | --- |
+| [`baidu-directory-export`](./baidu-directory-export/) | Active | Read-only Baidu Netdisk folder inventories with independent account login | Personal Netdisk folder path/URL or exported tree TXT | TXT and offline HTML with search, sorting, filtering, and collapsible folders | [`中文使用说明`](./baidu-directory-export/README.md), `SKILL.md`, `scripts/start-export.ps1` |
 | [`mdx-scorm-course-page`](./mdx-scorm-course-page/) | Active | Turning teaching materials into `mdx-scorm` lesson pages | Word handouts, pasted lesson text, teaching notes, exercise sheets, mixed course materials | Single-page lessons or template-driven unit drafts in `mdx-scorm` format | `SKILL.md`, `assets/course-page-template.mdx`, `references/syntax-inventory.md` |
 
 ## Reading guide
