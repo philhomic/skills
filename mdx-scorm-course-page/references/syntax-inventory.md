@@ -239,6 +239,7 @@ Key attributes:
 - `weight`
 - `weightDistribution=shared|average`
 - `aiScore=true|false`
+- `showAnswerAndExplanationMinScore=0..100`: optional integer for AI short answers; omit unless a score-based disclosure gate is requested. Requires runtime `8793ac42` or later. Zero still needs a successful grade; equality passes. Pending/missing/failed grades remain hidden, restored valid AI scores apply, and edits/reset invalidate the old grade. This only restricts existing answer/explanation visibility; normal mode does not gain a reference answer. Weighted/manual scores do not unlock it. Browse/marking and static exports retain existing rules. Below threshold the prompt requests diagnostic guidance without answers, explanations or ready-to-submit rewrites; `includeExplanation` is independent. This is not a confidentiality guarantee and does not rewrite historical feedback. Rebuild existing packages before using the new syntax.
 - `share=true|false`
 - `shareComments=true|false`
 - `isshared=true|false`

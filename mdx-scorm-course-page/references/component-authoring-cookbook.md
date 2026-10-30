@@ -99,6 +99,8 @@ Do not write `BC`, `B C`, `B,C`, `B、C`, or any other same-line list. The runti
 
 ## Fillblank
 
+When the author requests revealing feedback only after a minimum AI score, use `:::fillblank{aiScore=true showAnswerAndExplanationMinScore=60}` with the normal question/answer sections below. Replace 60 with the requested integer 0–100; do not invent a threshold. Omission preserves old behavior, while 0 still requires successful scoring. The threshold adds to existing visibility rules, so it does not add reference-answer display to normal mode. Reset/edit invalidates the previous score; restored valid AI scores can satisfy the gate. Browse/marking and static exports keep their existing policies. The prompt asks for diagnostic guidance below threshold without supplying answers, explanations or submission-ready rewrites; `includeExplanation` remains independent. This is not a secrecy guarantee and stored feedback is unchanged. Use only with a runtime containing `8793ac42` or later and rebuild old course packages; Skill updates alone do not deploy runtime support.
+
 Use one standalone blank per question-and-answer task, not `writing`. Omit `rows` unless explicitly requested (including in every other example in this cookbook). For a non-scoring question, add `weight=0`; retain SCORM tracking.
 
 AI-scored question-and-answer form (replace placeholders with supplied content; do not invent answers):
